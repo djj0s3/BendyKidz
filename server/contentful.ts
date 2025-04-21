@@ -88,10 +88,21 @@ export async function getFeaturedArticles(): Promise<Article[]> {
       return [];
     }
     
+    // Get assets directly first to ensure we have them
+    console.log('Fetching assets directly...');
+    const assetResponse = await fetchFromContentful('/assets');
+    
+    if (assetResponse && assetResponse.items) {
+      console.log(`Directly found ${assetResponse.items.length} assets`);
+      assetResponse.items.forEach((asset: any, index: number) => {
+        console.log(`Direct asset ${index + 1}: ID=${asset.sys.id}, URL=${asset.fields?.file?.url || 'no url'}`);
+      });
+    }
+    
     const response = await fetchFromContentful('/entries', {
       content_type: 'article',
       'fields.featured': 'true',
-      include: '2',
+      include: '10', // Increase the include level to ensure we get all linked assets
       order: '-sys.createdAt'
     });
     
@@ -102,10 +113,17 @@ export async function getFeaturedArticles(): Promise<Article[]> {
         console.log(`Asset ${index + 1}: ID=${asset.sys.id}, URL=${asset.fields?.file?.url || 'no url'}`);
       });
     } else {
-      console.log('No assets included in the response');
+      console.log('No assets included in the response, adding them manually');
+      
+      // If no assets in the response, add them manually from our direct fetch
+      if (assetResponse && assetResponse.items && assetResponse.items.length > 0) {
+        console.log('Manually adding assets to the response');
+        response.includes = response.includes || {};
+        response.includes.Asset = assetResponse.items;
+      }
     }
     
-    return response.items.map(transformContentfulArticle);
+    return response.items.map((item: any) => transformContentfulArticle(item, assetResponse));
   } catch (error) {
     console.error('Error fetching featured articles:', error);
     return [];
@@ -115,17 +133,26 @@ export async function getFeaturedArticles(): Promise<Article[]> {
 // Get a single article by slug
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
+    // Fetch assets first to ensure we have them
+    const assetResponse = await fetchFromContentful('/assets');
+    
     const response = await fetchFromContentful('/entries', {
       content_type: 'article',
       'fields.slug': slug,
-      include: '2'
+      include: '10' // Increase include level
     });
     
     if (response.items.length === 0) {
       return null;
     }
     
-    return transformContentfulArticle(response.items[0]);
+    // If response doesn't include assets, manually add them
+    if (!response.includes?.Asset && assetResponse?.items) {
+      response.includes = response.includes || {};
+      response.includes.Asset = assetResponse.items;
+    }
+    
+    return transformContentfulArticle(response.items[0], assetResponse);
   } catch (error) {
     console.error('Error fetching article by slug:', error);
     return null;
@@ -135,17 +162,26 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 // Get related articles
 export async function getRelatedArticles(articleId: string, categoryId: string): Promise<RelatedArticle[]> {
   try {
+    // Fetch assets first
+    const assetResponse = await fetchFromContentful('/assets');
+    
     const response = await fetchFromContentful('/entries', {
       content_type: 'article',
       'fields.category.sys.id': categoryId,
-      include: '1',
+      include: '10', // Increase include level
       limit: '3'
     });
+    
+    // If response doesn't include assets, manually add them
+    if (!response.includes?.Asset && assetResponse?.items) {
+      response.includes = response.includes || {};
+      response.includes.Asset = assetResponse.items;
+    }
   
     // Filter out the current article and transform
     return response.items
       .filter((item: any) => item.sys.id !== articleId)
-      .map(transformContentfulRelatedArticle);
+      .map((item: any) => transformContentfulRelatedArticle(item, assetResponse));
   } catch (error) {
     console.error('Error fetching related articles:', error);
     return [];
@@ -154,39 +190,58 @@ export async function getRelatedArticles(articleId: string, categoryId: string):
 
 // Get all categories
 export async function getCategories(): Promise<Category[]> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'category',
-    order: 'fields.name'
-  });
-  
-  return response.items.map(transformContentfulCategory);
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'category',
+      order: 'fields.name'
+    });
+    
+    return response.items.map((item: any) => transformContentfulCategory(item));
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    throw new Error('Failed to fetch categories');
+  }
 }
 
 // Get a single category by slug
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'category',
-    'fields.slug': slug
-  });
-  
-  if (response.items.length === 0) {
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'category',
+      'fields.slug': slug
+    });
+    
+    if (response.items.length === 0) {
+      return null;
+    }
+    
+    return transformContentfulCategory(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching category by slug:', error);
     return null;
   }
-  
-  return transformContentfulCategory(response.items[0]);
 }
 
 // Get articles by category
 export async function getArticlesByCategory(categoryId: string): Promise<Article[]> {
   try {
+    // Fetch assets first
+    const assetResponse = await fetchFromContentful('/assets');
+    
     const response = await fetchFromContentful('/entries', {
       content_type: 'article',
       'fields.category.sys.id': categoryId,
-      include: '2',
+      include: '10', // Increase include level
       order: '-sys.createdAt'
     });
     
-    return response.items.map(transformContentfulArticle);
+    // If response doesn't include assets, manually add them
+    if (!response.includes?.Asset && assetResponse?.items) {
+      response.includes = response.includes || {};
+      response.includes.Asset = assetResponse.items;
+    }
+    
+    return response.items.map((item: any) => transformContentfulArticle(item, assetResponse));
   } catch (error) {
     console.error('Error fetching articles by category:', error);
     return [];
@@ -261,12 +316,24 @@ export async function getSiteStats(): Promise<SiteStats | null> {
 }
 
 // Helper functions to transform Contentful data
-function transformContentfulArticle(item: any): Article {
+function transformContentfulArticle(item: any, assetResponse?: any): Article {
   const fields = item.fields;
   const authorEntry = findLinkedEntry(item, fields.author?.sys?.id);
   const categoryEntry = findLinkedEntry(item, fields.category?.sys?.id);
   const featuredImageAssetId = fields.featuredImage?.sys?.id;
-  const featuredImageAsset = findLinkedAsset(item, featuredImageAssetId);
+  
+  // Try to find the asset in the response includes first
+  let featuredImageAsset = findLinkedAsset(item, featuredImageAssetId);
+  
+  // If not found but we have a direct asset response, try to find it there
+  if (!featuredImageAsset && assetResponse && assetResponse.items) {
+    console.log(`Looking for asset ${featuredImageAssetId} in direct asset response`);
+    featuredImageAsset = assetResponse.items.find((asset: any) => asset.sys.id === featuredImageAssetId);
+    
+    if (featuredImageAsset) {
+      console.log(`Found asset ${featuredImageAssetId} in direct asset response`);
+    }
+  }
   
   // Debug image information
   console.log(`Transforming article: ${fields.title} (ID: ${item.sys.id})`);
@@ -276,9 +343,30 @@ function transformContentfulArticle(item: any): Article {
     console.log(`    - Found asset: ${featuredImageAsset.sys.id}`);
     console.log(`    - Has file field: ${!!featuredImageAsset.fields?.file}`);
     console.log(`    - File URL: ${featuredImageAsset.fields?.file?.url || 'none'}`);
-    console.log(`    - Full Image URL: ${'https:' + featuredImageAsset.fields?.file?.url}`);
+    if (featuredImageAsset.fields?.file?.url) {
+      console.log(`    - Full Image URL: ${'https:' + featuredImageAsset.fields.file.url}`);
+    }
   } else {
     console.log(`  No featured image asset found`);
+  }
+  
+  // Get avatar from author
+  let authorAvatarUrl = '';
+  if (authorEntry && authorEntry.fields && authorEntry.fields.avatar) {
+    const authorAvatarId = authorEntry.fields.avatar?.sys?.id;
+    
+    // Try to find in includes first
+    let authorAvatarAsset = findLinkedAsset(item, authorAvatarId);
+    
+    // If not found, try direct assets
+    if (!authorAvatarAsset && assetResponse && assetResponse.items) {
+      authorAvatarAsset = assetResponse.items.find((asset: any) => asset.sys.id === authorAvatarId);
+    }
+    
+    if (authorAvatarAsset && authorAvatarAsset.fields?.file?.url) {
+      authorAvatarUrl = 'https:' + authorAvatarAsset.fields.file.url;
+      console.log(`  Author avatar URL: ${authorAvatarUrl}`);
+    }
   }
   
   return {
@@ -293,9 +381,7 @@ function transformContentfulArticle(item: any): Article {
     author: {
       id: authorEntry?.sys?.id || '',
       name: authorEntry?.fields?.name || 'Unknown Author',
-      avatar: findLinkedAsset(item, authorEntry?.fields?.avatar?.sys?.id)?.fields?.file?.url 
-        ? 'https:' + findLinkedAsset(item, authorEntry.fields.avatar.sys.id).fields.file.url 
-        : ''
+      avatar: authorAvatarUrl
     },
     category: {
       id: categoryEntry?.sys?.id || '',
@@ -307,9 +393,22 @@ function transformContentfulArticle(item: any): Article {
   };
 }
 
-function transformContentfulRelatedArticle(item: any): RelatedArticle {
+function transformContentfulRelatedArticle(item: any, assetResponse?: any): RelatedArticle {
   const fields = item.fields;
-  const featuredImageAsset = findLinkedAsset(item, fields.featuredImage?.sys?.id);
+  const featuredImageAssetId = fields.featuredImage?.sys?.id;
+  
+  // Try to find in includes first
+  let featuredImageAsset = findLinkedAsset(item, featuredImageAssetId);
+  
+  // If not found but we have direct assets, try there
+  if (!featuredImageAsset && assetResponse && assetResponse.items) {
+    console.log(`Looking for related article asset ${featuredImageAssetId} in direct asset response`);
+    featuredImageAsset = assetResponse.items.find((asset: any) => asset.sys.id === featuredImageAssetId);
+    
+    if (featuredImageAsset) {
+      console.log(`Found related article asset ${featuredImageAssetId} in direct asset response`);
+    }
+  }
   
   return {
     id: item.sys.id,
