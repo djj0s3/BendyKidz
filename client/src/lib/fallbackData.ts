@@ -5,7 +5,8 @@ import {
   AboutContent,
   TeamMember,
   SiteStats,
-  RelatedArticle
+  RelatedArticle,
+  HeroSection
 } from '@shared/schema';
 
 // Fallback data for when Contentful is not properly configured
@@ -343,6 +344,17 @@ export const fallbackTeamMembers: TeamMember[] = [
     avatar: 'https://randomuser.me/api/portraits/women/65.jpg'
   }
 ];
+
+export const fallbackHeroSection: HeroSection = {
+  title: 'Fun Occupational Therapy for Kids that Makes a Difference',
+  subtitle: 'Expert resources to help your child develop skills, confidence, and independence through play-based therapy.',
+  image: 'https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+  imageAlt: 'Child engaging in therapy activities',
+  primaryButtonText: 'Start Exploring',
+  primaryButtonLink: '/articles',
+  secondaryButtonText: 'Meet the Therapist',
+  secondaryButtonLink: '/about'
+};
 
 export const fallbackSiteStats: SiteStats = {
   resources: 25,
