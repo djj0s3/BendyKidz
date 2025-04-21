@@ -48,56 +48,98 @@ async function fetchFromContentful(endpoint: string, params: Record<string, stri
 
 // Get all articles
 export async function getArticles(): Promise<Article[]> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'article',
-    include: 2, // Include 2 levels of linked entries (for authors and categories)
-    order: '-sys.createdAt' // Sort by newest first
-  });
-  
-  // Transform Contentful response to our Article model
-  return response.items.map(transformContentfulArticle);
+  try {
+    // First check if the content type exists by getting content types
+    const contentTypesResponse = await fetchFromContentful('/content_types');
+    const hasArticleContentType = contentTypesResponse.items.some(
+      (contentType: any) => contentType.sys.id === 'article'
+    );
+    
+    if (!hasArticleContentType) {
+      console.log('Article content type not found in Contentful space. Using fallback data.');
+      return [];
+    }
+    
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'article',
+      include: '2', // Include 2 levels of linked entries (for authors and categories)
+      order: '-sys.createdAt' // Sort by newest first
+    });
+    
+    // Transform Contentful response to our Article model
+    return response.items.map(transformContentfulArticle);
+  } catch (error) {
+    console.error('Error fetching articles:', error);
+    return [];
+  }
 }
 
 // Get featured articles
 export async function getFeaturedArticles(): Promise<Article[]> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'article',
-    'fields.featured': 'true',
-    include: 2,
-    order: '-sys.createdAt'
-  });
-  
-  return response.items.map(transformContentfulArticle);
+  try {
+    // First check if the content type exists by getting content types
+    const contentTypesResponse = await fetchFromContentful('/content_types');
+    const hasArticleContentType = contentTypesResponse.items.some(
+      (contentType: any) => contentType.sys.id === 'article'
+    );
+    
+    if (!hasArticleContentType) {
+      console.log('Article content type not found in Contentful space. Using fallback data.');
+      return [];
+    }
+    
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'article',
+      'fields.featured': 'true',
+      include: '2',
+      order: '-sys.createdAt'
+    });
+    
+    return response.items.map(transformContentfulArticle);
+  } catch (error) {
+    console.error('Error fetching featured articles:', error);
+    return [];
+  }
 }
 
 // Get a single article by slug
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'article',
-    'fields.slug': slug,
-    include: 2
-  });
-  
-  if (response.items.length === 0) {
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'article',
+      'fields.slug': slug,
+      include: '2'
+    });
+    
+    if (response.items.length === 0) {
+      return null;
+    }
+    
+    return transformContentfulArticle(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching article by slug:', error);
     return null;
   }
-  
-  return transformContentfulArticle(response.items[0]);
 }
 
 // Get related articles
 export async function getRelatedArticles(articleId: string, categoryId: string): Promise<RelatedArticle[]> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'article',
-    'fields.category.sys.id': categoryId,
-    include: 1,
-    limit: 3
-  });
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'article',
+      'fields.category.sys.id': categoryId,
+      include: '1',
+      limit: '3'
+    });
   
-  // Filter out the current article and transform
-  return response.items
-    .filter((item: any) => item.sys.id !== articleId)
-    .map(transformContentfulRelatedArticle);
+    // Filter out the current article and transform
+    return response.items
+      .filter((item: any) => item.sys.id !== articleId)
+      .map(transformContentfulRelatedArticle);
+  } catch (error) {
+    console.error('Error fetching related articles:', error);
+    return [];
+  }
 }
 
 // Get all categories
@@ -126,61 +168,86 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 
 // Get articles by category
 export async function getArticlesByCategory(categoryId: string): Promise<Article[]> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'article',
-    'fields.category.sys.id': categoryId,
-    include: 2,
-    order: '-sys.createdAt'
-  });
-  
-  return response.items.map(transformContentfulArticle);
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'article',
+      'fields.category.sys.id': categoryId,
+      include: '2',
+      order: '-sys.createdAt'
+    });
+    
+    return response.items.map(transformContentfulArticle);
+  } catch (error) {
+    console.error('Error fetching articles by category:', error);
+    return [];
+  }
 }
 
 // Get testimonials
 export async function getTestimonials(): Promise<Testimonial[]> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'testimonial',
-    order: '-sys.createdAt'
-  });
-  
-  return response.items.map(transformContentfulTestimonial);
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'testimonial',
+      order: '-sys.createdAt'
+    });
+    
+    return response.items.map(transformContentfulTestimonial);
+  } catch (error) {
+    console.error('Error fetching testimonials:', error);
+    return [];
+  }
 }
 
 // Get about page content
 export async function getAboutContent(): Promise<AboutContent | null> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'aboutPage',
-    include: 1
-  });
-  
-  if (response.items.length === 0) {
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'aboutPage',
+      include: '1'
+    });
+    
+    if (response.items.length === 0) {
+      return null;
+    }
+    
+    return transformContentfulAboutContent(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching about content:', error);
     return null;
   }
-  
-  return transformContentfulAboutContent(response.items[0]);
 }
 
 // Get team members
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'teamMember',
-    order: 'fields.order'
-  });
-  
-  return response.items.map(transformContentfulTeamMember);
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'teamMember',
+      order: 'fields.order'
+    });
+    
+    return response.items.map(transformContentfulTeamMember);
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    return [];
+  }
 }
 
 // Get site statistics
 export async function getSiteStats(): Promise<SiteStats | null> {
-  const response = await fetchFromContentful('/entries', {
-    content_type: 'siteStats'
-  });
-  
-  if (response.items.length === 0) {
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'siteStats'
+    });
+    
+    if (response.items.length === 0) {
+      return null;
+    }
+    
+    return transformContentfulSiteStats(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching site stats:', error);
     return null;
   }
-  
-  return transformContentfulSiteStats(response.items[0]);
 }
 
 // Helper functions to transform Contentful data
@@ -209,7 +276,8 @@ function transformContentfulArticle(item: any): Article {
     category: {
       id: categoryEntry?.sys?.id || '',
       name: categoryEntry?.fields?.name || 'Uncategorized',
-      slug: categoryEntry?.fields?.slug || 'uncategorized'
+      slug: categoryEntry?.fields?.slug || 'uncategorized',
+      description: categoryEntry?.fields?.description || ''
     },
     tags: fields.tags || []
   };
