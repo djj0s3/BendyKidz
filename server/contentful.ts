@@ -1,4 +1,4 @@
-import { Article, Category, Testimonial, AboutContent, TeamMember, SiteStats, RelatedArticle } from '@shared/schema';
+import { Article, Category, Testimonial, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection } from '@shared/schema';
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID || '';
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN || '';
@@ -438,6 +438,25 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
   }
 }
 
+// Get hero section content
+export async function getHeroSection(): Promise<HeroSection | null> {
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'heroSection',
+      include: '2'
+    });
+    
+    if (response.items.length === 0) {
+      return null;
+    }
+    
+    return transformContentfulHeroSection(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching hero section:', error);
+    return null;
+  }
+}
+
 // Get site statistics
 export async function getSiteStats(): Promise<SiteStats | null> {
   try {
@@ -702,6 +721,28 @@ function transformContentfulTeamMember(item: any): TeamMember {
     avatar: findLinkedAsset(item, fields.avatar?.sys?.id)?.fields?.file?.url 
       ? 'https:' + findLinkedAsset(item, fields.avatar.sys.id).fields.file.url 
       : ''
+  };
+}
+
+function transformContentfulHeroSection(item: any): HeroSection {
+  const fields = item.fields;
+  const imageId = fields.image?.sys?.id || fields.image?.['en-US']?.sys?.id;
+  const imageAsset = findLinkedAsset(item, imageId);
+  
+  // Get image URL considering both direct and localized fields
+  const imageUrl = imageAsset ? 
+    'https:' + (imageAsset.fields?.file?.['en-US']?.url || 
+               imageAsset.fields?.file?.url || '') : '';
+  
+  return {
+    title: fields.title?.['en-US'] || fields.title || '',
+    subtitle: fields.subtitle?.['en-US'] || fields.subtitle || '',
+    image: imageUrl,
+    imageAlt: fields.imageAlt?.['en-US'] || fields.imageAlt || '',
+    primaryButtonText: fields.primaryButtonText?.['en-US'] || fields.primaryButtonText || 'Learn More',
+    primaryButtonLink: fields.primaryButtonLink?.['en-US'] || fields.primaryButtonLink || '/articles',
+    secondaryButtonText: fields.secondaryButtonText?.['en-US'] || fields.secondaryButtonText || 'About Us',
+    secondaryButtonLink: fields.secondaryButtonLink?.['en-US'] || fields.secondaryButtonLink || '/about'
   };
 }
 

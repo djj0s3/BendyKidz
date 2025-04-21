@@ -114,6 +114,17 @@ export interface TeamMember {
   avatar: string;
 }
 
+export interface HeroSection {
+  title: string;
+  subtitle: string;
+  image: string;
+  imageAlt: string;
+  primaryButtonText: string;
+  primaryButtonLink: string;
+  secondaryButtonText: string;
+  secondaryButtonLink: string;
+}
+
 export interface SiteStats {
   resources: number;
   specialists: number;

@@ -16,7 +16,8 @@ import {
   getTestimonials,
   getAboutContent,
   getTeamMembers,
-  getSiteStats
+  getSiteStats,
+  getHeroSection
 } from "./contentful";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -140,6 +141,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching team members:", error);
       res.status(500).json({ message: "Failed to fetch team members" });
+    }
+  });
+
+  app.get("/api/hero", async (req, res) => {
+    try {
+      const heroSection = await getHeroSection();
+      res.json(heroSection);
+    } catch (error) {
+      console.error("Error fetching hero section:", error);
+      res.status(500).json({ message: "Failed to fetch hero section" });
     }
   });
 
