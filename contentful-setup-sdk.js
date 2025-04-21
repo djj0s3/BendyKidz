@@ -450,6 +450,15 @@ async function createSampleContent(environment) {
   
   // Define asset data
   const assets = {
+    'hero-image': {
+      title: 'Hero Section Image',
+      description: 'Main image shown in the hero section',
+      file: {
+        fileName: 'hero-image.jpg',
+        contentType: 'image/jpeg',
+        upload: 'https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+      }
+    },
     'emma-avatar': {
       title: 'Emma Wilson Avatar',
       description: 'Portrait of Emma Wilson, the lead occupational therapist',
