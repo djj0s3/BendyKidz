@@ -23,7 +23,7 @@ export default function HeroSection() {
                 Start Exploring
               </Link>
               <Link href="/about" className="btn bg-white hover:bg-opacity-90 text-primary font-bold py-3 px-6 rounded-full inline-block text-center">
-                Meet Our Therapists
+                Meet the Therapist
               </Link>
             </div>
           </div>
@@ -60,10 +60,10 @@ export default function HeroSection() {
               {isLoading ? (
                 <span className="animate-pulse bg-white bg-opacity-30 rounded px-3">---</span>
               ) : (
-                `${stats?.specialists || '10'}+`
+                `${stats?.specialists || '1'}`
               )}
             </h3>
-            <p className="opacity-90">Specialists</p>
+            <p className="opacity-90">Specialist</p>
           </div>
           <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-sm rounded-lg p-6">
             <div className="inline-block p-3 bg-white rounded-full text-primary mb-4">

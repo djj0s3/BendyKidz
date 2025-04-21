@@ -81,7 +81,7 @@ export const getQueryFn: <T>(options: {
     }
   };
 
-function getFallbackData(url: string, queryKey: string[]) {
+function getFallbackData(url: string, queryKey: any[]) {
   console.log(`Using fallback data for ${url}`);
   
   // Check for direct URL matches

@@ -120,67 +120,61 @@ export default function AboutPage() {
 
             {/* Team Section */}
             <div>
-              <h2 className="text-2xl font-bold font-heading mb-12 text-primary text-center">Our Team</h2>
+              <h2 className="text-2xl font-bold font-heading mb-12 text-primary text-center">Meet Your Therapist</h2>
               
               {teamLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="text-center">
-                      <Skeleton className="w-32 h-32 rounded-full mx-auto mb-4" />
-                      <Skeleton className="h-6 w-40 mx-auto mb-2" />
-                      <Skeleton className="h-4 w-24 mx-auto mb-4" />
-                      <Skeleton className="h-4 w-full mx-auto mb-1" />
-                      <Skeleton className="h-4 w-5/6 mx-auto mb-1" />
-                      <Skeleton className="h-4 w-4/5 mx-auto" />
+                <div className="max-w-2xl mx-auto">
+                  <div className="text-center">
+                    <Skeleton className="w-48 h-48 rounded-full mx-auto mb-6" />
+                    <Skeleton className="h-8 w-64 mx-auto mb-2" />
+                    <Skeleton className="h-6 w-80 mx-auto mb-6" />
+                    <div className="space-y-4 text-left">
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-5/6 mb-1" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-4/5 mb-1" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-3/4" />
                     </div>
-                  ))}
+                  </div>
                 </div>
               ) : teamMembers && teamMembers.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                  {teamMembers.map((member) => (
-                    <div key={member.id} className="text-center">
-                      <img 
-                        src={member.avatar} 
-                        alt={member.name} 
-                        className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                      />
-                      <h3 className="text-xl font-bold font-heading mb-1">{member.name}</h3>
-                      <p className="text-primary mb-4">{member.role}</p>
-                      <p className="text-gray-600">{member.bio}</p>
+                <div className="max-w-2xl mx-auto">
+                  {/* Just show the first team member if there are multiple */}
+                  <div className="text-center">
+                    <img 
+                      src={teamMembers[0].avatar} 
+                      alt={teamMembers[0].name} 
+                      className="w-48 h-48 rounded-full mx-auto mb-6 object-cover shadow-lg border-4 border-white"
+                    />
+                    <h3 className="text-2xl font-bold font-heading mb-2">{teamMembers[0].name}</h3>
+                    <p className="text-primary text-lg mb-6">{teamMembers[0].role}</p>
+                    <div className="text-gray-600 space-y-4 text-left">
+                      <p>{teamMembers[0].bio}</p>
                     </div>
-                  ))}
+                  </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                <div className="max-w-2xl mx-auto">
                   <div className="text-center">
                     <img 
                       src="https://randomuser.me/api/portraits/women/65.jpg" 
                       alt="Emma Wilson" 
-                      className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
+                      className="w-48 h-48 rounded-full mx-auto mb-6 object-cover shadow-lg border-4 border-white"
                     />
-                    <h3 className="text-xl font-bold font-heading mb-1">Emma Wilson</h3>
-                    <p className="text-primary mb-4">Founder & Lead OT</p>
-                    <p className="text-gray-600">Emma has over 15 years of experience working with children with diverse needs and founded BendyKidz to make OT more accessible.</p>
-                  </div>
-                  <div className="text-center">
-                    <img 
-                      src="https://randomuser.me/api/portraits/men/32.jpg" 
-                      alt="David Chen" 
-                      className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                    />
-                    <h3 className="text-xl font-bold font-heading mb-1">David Chen</h3>
-                    <p className="text-primary mb-4">Pediatric OT Specialist</p>
-                    <p className="text-gray-600">David specializes in sensory integration therapy and has developed many of our sensory-based resources and programs.</p>
-                  </div>
-                  <div className="text-center">
-                    <img 
-                      src="https://randomuser.me/api/portraits/women/45.jpg" 
-                      alt="Sarah Johnson" 
-                      className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                    />
-                    <h3 className="text-xl font-bold font-heading mb-1">Sarah Johnson</h3>
-                    <p className="text-primary mb-4">Child Development Expert</p>
-                    <p className="text-gray-600">With a background in developmental psychology, Sarah ensures all our resources are developmentally appropriate and effective.</p>
+                    <h3 className="text-2xl font-bold font-heading mb-2">Emma Wilson</h3>
+                    <p className="text-primary text-lg mb-6">Founder & Lead Occupational Therapist</p>
+                    <div className="text-gray-600 space-y-4 text-left">
+                      <p>Emma has over 15 years of experience working with children with diverse needs and abilities. She founded BendyKidz to make occupational therapy resources more accessible to families everywhere.</p>
+                      
+                      <p>With a Master's degree in Occupational Therapy and specialized certifications in Sensory Integration and Pediatric Development, Emma brings a wealth of knowledge and practical experience to help children thrive.</p>
+                      
+                      <p>Her approach combines evidence-based practices with a playful, family-centered philosophy that empowers parents to support their children's development at home.</p>
+                      
+                      <p>When not creating resources or working with clients, Emma enjoys hiking, gardening, and volunteering at local community centers.</p>
+                    </div>
                   </div>
                 </div>
               )}
