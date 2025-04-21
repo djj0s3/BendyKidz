@@ -15,10 +15,28 @@ async function fetchFromContentful(endpoint: string, params: Record<string, stri
   });
 
   try {
+    // Log the request URL (without the token) for debugging
+    console.log(`Fetching from Contentful: ${API_BASE_URL}${endpoint} with params: ${Object.keys(params).join(', ')}`);
+    
     const response = await fetch(`${API_BASE_URL}${endpoint}?${queryParams.toString()}`);
     
     if (!response.ok) {
-      throw new Error(`Contentful API error: ${response.status} ${response.statusText}`);
+      // Get more details from the error response if possible
+      let errorDetails = '';
+      try {
+        const errorJson = await response.json();
+        errorDetails = JSON.stringify(errorJson);
+      } catch (e) {
+        // If can't parse JSON, use text instead
+        try {
+          errorDetails = await response.text();
+        } catch (e2) {
+          // If all else fails, just use status
+          errorDetails = `${response.status} ${response.statusText}`;
+        }
+      }
+      
+      throw new Error(`Contentful API error: ${response.status} ${response.statusText} - ${errorDetails}`);
     }
     
     return await response.json();

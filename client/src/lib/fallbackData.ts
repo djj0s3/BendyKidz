@@ -338,8 +338,8 @@ export const fallbackTeamMembers: TeamMember[] = [
   {
     id: 'team-1',
     name: 'Emma Wilson',
-    role: 'Founder & Lead OT',
-    bio: 'Emma has over 15 years of experience working with children with diverse needs and founded BendyKidz to make OT more accessible to families everywhere.',
+    role: 'Founder & Lead Occupational Therapist',
+    bio: 'Emma has over 15 years of experience working with children with diverse needs and abilities. With a Master\'s degree in Occupational Therapy and specialized certifications in Sensory Integration and Pediatric Development, Emma brings a wealth of knowledge and practical experience to help children thrive. Her approach combines evidence-based practices with a playful, family-centered philosophy that empowers parents to support their children\'s development at home.',
     avatar: 'https://randomuser.me/api/portraits/women/65.jpg'
   }
 ];
