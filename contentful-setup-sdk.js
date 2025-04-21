@@ -44,6 +44,66 @@ async function createContentTypes(environment) {
   // Define content types
   const contentTypes = [
     {
+      id: 'heroSection',
+      name: 'Hero Section',
+      description: 'Content for the hero section on the home page',
+      displayField: 'title',
+      fields: [
+        {
+          id: 'title',
+          name: 'Title',
+          type: 'Symbol',
+          required: true
+        },
+        {
+          id: 'subtitle',
+          name: 'Subtitle',
+          type: 'Symbol',
+          required: true
+        },
+        {
+          id: 'image',
+          name: 'Hero Image',
+          type: 'Link',
+          linkType: 'Asset',
+          required: true,
+          validations: [
+            { linkMimetypeGroup: ['image'] }
+          ]
+        },
+        {
+          id: 'imageAlt',
+          name: 'Image Alternative Text',
+          type: 'Symbol',
+          required: true
+        },
+        {
+          id: 'primaryButtonText',
+          name: 'Primary Button Text',
+          type: 'Symbol',
+          required: true
+        },
+        {
+          id: 'primaryButtonLink',
+          name: 'Primary Button Link',
+          type: 'Symbol',
+          required: true
+        },
+        {
+          id: 'secondaryButtonText',
+          name: 'Secondary Button Text',
+          type: 'Symbol',
+          required: true
+        },
+        {
+          id: 'secondaryButtonLink',
+          name: 'Secondary Button Link',
+          type: 'Symbol',
+          required: true
+        }
+      ]
+    },
+    {
       id: 'author',
       name: 'Author',
       description: 'Author for BendyKidz articles',
