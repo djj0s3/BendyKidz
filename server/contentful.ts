@@ -88,7 +88,21 @@ export async function getFeaturedArticles(): Promise<Article[]> {
       return [];
     }
     
-    // Get assets directly first to ensure we have them
+    // Get authors first to ensure we have them
+    console.log('Fetching authors directly...');
+    const authorsResponse = await fetchFromContentful('/entries', {
+      content_type: 'author',
+      include: '2' // Include linked assets like avatars
+    });
+    
+    if (authorsResponse && authorsResponse.items) {
+      console.log(`Directly found ${authorsResponse.items.length} authors`);
+      authorsResponse.items.forEach((author: any, index: number) => {
+        console.log(`Direct author ${index + 1}: ID=${author.sys.id}, Name=${author.fields?.name?.['en-US'] || 'unnamed'}`);
+      });
+    }
+    
+    // Get assets directly to ensure we have them
     console.log('Fetching assets directly...');
     const assetResponse = await fetchFromContentful('/assets');
     
@@ -123,7 +137,38 @@ export async function getFeaturedArticles(): Promise<Article[]> {
       }
     }
     
-    return response.items.map((item: any) => transformContentfulArticle(item, assetResponse));
+    // Add authors to the response includes if they're not already there
+    if (!response.includes?.Entry || !response.includes.Entry.some((entry: any) => entry.sys.contentType?.sys?.id === 'author')) {
+      console.log('No authors included in the response, adding them manually');
+      
+      if (authorsResponse && authorsResponse.items && authorsResponse.items.length > 0) {
+        console.log('Manually adding authors to the response');
+        response.includes = response.includes || {};
+        response.includes.Entry = response.includes.Entry || [];
+        
+        // Add each author that isn't already in the includes
+        for (const author of authorsResponse.items) {
+          if (!response.includes.Entry.some((entry: any) => entry.sys.id === author.sys.id)) {
+            response.includes.Entry.push(author);
+          }
+        }
+      }
+    }
+    
+    // If authors have linked assets (like avatars), make sure those are included too
+    if (authorsResponse?.includes?.Asset) {
+      console.log('Adding author avatar assets to the response');
+      response.includes = response.includes || {};
+      response.includes.Asset = response.includes.Asset || [];
+      
+      for (const asset of authorsResponse.includes.Asset) {
+        if (!response.includes.Asset.some((a: any) => a.sys.id === asset.sys.id)) {
+          response.includes.Asset.push(asset);
+        }
+      }
+    }
+    
+    return response.items.map((item: any) => transformContentfulArticle(item, assetResponse, authorsResponse));
   } catch (error) {
     console.error('Error fetching featured articles:', error);
     return [];
@@ -133,7 +178,21 @@ export async function getFeaturedArticles(): Promise<Article[]> {
 // Get a single article by slug
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
-    // Fetch assets first to ensure we have them
+    // Get authors first to ensure we have them
+    console.log('Fetching authors directly...');
+    const authorsResponse = await fetchFromContentful('/entries', {
+      content_type: 'author',
+      include: '2' // Include linked assets like avatars
+    });
+    
+    if (authorsResponse && authorsResponse.items) {
+      console.log(`Directly found ${authorsResponse.items.length} authors`);
+      authorsResponse.items.forEach((author: any, index: number) => {
+        console.log(`Direct author ${index + 1}: ID=${author.sys.id}, Name=${author.fields?.name?.['en-US'] || 'unnamed'}`);
+      });
+    }
+    
+    // Fetch assets to ensure we have them
     const assetResponse = await fetchFromContentful('/assets');
     
     const response = await fetchFromContentful('/entries', {
@@ -152,7 +211,38 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
       response.includes.Asset = assetResponse.items;
     }
     
-    return transformContentfulArticle(response.items[0], assetResponse);
+    // Add authors to the response includes if they're not already there
+    if (!response.includes?.Entry || !response.includes.Entry.some((entry: any) => entry.sys.contentType?.sys?.id === 'author')) {
+      console.log('No authors included in the response, adding them manually');
+      
+      if (authorsResponse && authorsResponse.items && authorsResponse.items.length > 0) {
+        console.log('Manually adding authors to the response');
+        response.includes = response.includes || {};
+        response.includes.Entry = response.includes.Entry || [];
+        
+        // Add each author that isn't already in the includes
+        for (const author of authorsResponse.items) {
+          if (!response.includes.Entry.some((entry: any) => entry.sys.id === author.sys.id)) {
+            response.includes.Entry.push(author);
+          }
+        }
+      }
+    }
+    
+    // If authors have linked assets (like avatars), make sure those are included too
+    if (authorsResponse?.includes?.Asset) {
+      console.log('Adding author avatar assets to the response');
+      response.includes = response.includes || {};
+      response.includes.Asset = response.includes.Asset || [];
+      
+      for (const asset of authorsResponse.includes.Asset) {
+        if (!response.includes.Asset.some((a: any) => a.sys.id === asset.sys.id)) {
+          response.includes.Asset.push(asset);
+        }
+      }
+    }
+    
+    return transformContentfulArticle(response.items[0], assetResponse, authorsResponse);
   } catch (error) {
     console.error('Error fetching article by slug:', error);
     return null;
@@ -225,6 +315,20 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 // Get articles by category
 export async function getArticlesByCategory(categoryId: string): Promise<Article[]> {
   try {
+    // Get authors first to ensure we have them
+    console.log('Fetching authors directly...');
+    const authorsResponse = await fetchFromContentful('/entries', {
+      content_type: 'author',
+      include: '2' // Include linked assets like avatars
+    });
+    
+    if (authorsResponse && authorsResponse.items) {
+      console.log(`Directly found ${authorsResponse.items.length} authors for articles by category`);
+      authorsResponse.items.forEach((author: any, index: number) => {
+        console.log(`Direct author ${index + 1}: ID=${author.sys.id}, Name=${author.fields?.name?.['en-US'] || 'unnamed'}`);
+      });
+    }
+    
     // Fetch assets first
     const assetResponse = await fetchFromContentful('/assets');
     
@@ -241,7 +345,38 @@ export async function getArticlesByCategory(categoryId: string): Promise<Article
       response.includes.Asset = assetResponse.items;
     }
     
-    return response.items.map((item: any) => transformContentfulArticle(item, assetResponse));
+    // Add authors to the response includes if they're not already there
+    if (!response.includes?.Entry || !response.includes.Entry.some((entry: any) => entry.sys.contentType?.sys?.id === 'author')) {
+      console.log('No authors included in the response, adding them manually');
+      
+      if (authorsResponse && authorsResponse.items && authorsResponse.items.length > 0) {
+        console.log('Manually adding authors to the response');
+        response.includes = response.includes || {};
+        response.includes.Entry = response.includes.Entry || [];
+        
+        // Add each author that isn't already in the includes
+        for (const author of authorsResponse.items) {
+          if (!response.includes.Entry.some((entry: any) => entry.sys.id === author.sys.id)) {
+            response.includes.Entry.push(author);
+          }
+        }
+      }
+    }
+    
+    // If authors have linked assets (like avatars), make sure those are included too
+    if (authorsResponse?.includes?.Asset) {
+      console.log('Adding author avatar assets to the response');
+      response.includes = response.includes || {};
+      response.includes.Asset = response.includes.Asset || [];
+      
+      for (const asset of authorsResponse.includes.Asset) {
+        if (!response.includes.Asset.some((a: any) => a.sys.id === asset.sys.id)) {
+          response.includes.Asset.push(asset);
+        }
+      }
+    }
+    
+    return response.items.map((item: any) => transformContentfulArticle(item, assetResponse, authorsResponse));
   } catch (error) {
     console.error('Error fetching articles by category:', error);
     return [];
@@ -316,7 +451,7 @@ export async function getSiteStats(): Promise<SiteStats | null> {
 }
 
 // Helper functions to transform Contentful data
-function transformContentfulArticle(item: any, assetResponse?: any): Article {
+function transformContentfulArticle(item: any, assetResponse?: any, authorsResponse?: any): Article {
   const fields = item.fields;
   const featuredImageAssetId = fields.featuredImage?.sys?.id;
   
@@ -368,9 +503,49 @@ function transformContentfulArticle(item: any, assetResponse?: any): Article {
         }
       }
     }
+  } else if (authorEntryId && authorsResponse) {
+    // If not found in includes but we have a direct authors response, try to find there
+    console.log(`Looking for author ${authorEntryId} in direct authors response`);
+    const directAuthor = authorsResponse.items?.find((author: any) => author.sys.id === authorEntryId);
+    
+    if (directAuthor) {
+      console.log('Found author in direct authors response:', JSON.stringify(directAuthor.fields, null, 2));
+      authorId = directAuthor.sys.id;
+      authorName = directAuthor.fields?.name?.['en-US'] || 'Unknown Author';
+      
+      // Get avatar ID
+      const authorAvatarId = directAuthor.fields?.avatar?.['en-US']?.sys?.id;
+      
+      if (authorAvatarId) {
+        // Look for the avatar in the authors response includes first
+        let authorAvatarAsset = null;
+        if (authorsResponse.includes?.Asset) {
+          console.log(`Looking for author avatar in authors response includes`);
+          authorAvatarAsset = authorsResponse.includes.Asset.find((asset: any) => asset.sys.id === authorAvatarId);
+        }
+        
+        // If not found, try direct assets
+        if (!authorAvatarAsset && assetResponse && assetResponse.items) {
+          console.log(`Looking for author avatar ${authorAvatarId} in direct asset response`);
+          authorAvatarAsset = assetResponse.items.find((asset: any) => asset.sys.id === authorAvatarId);
+        }
+        
+        if (authorAvatarAsset) {
+          console.log('Found author avatar:', JSON.stringify(authorAvatarAsset.fields, null, 2));
+          const fileUrl = authorAvatarAsset.fields?.file?.['en-US']?.url || 
+                         authorAvatarAsset.fields?.file?.url;
+          
+          if (fileUrl) {
+            authorAvatarUrl = 'https:' + fileUrl;
+            console.log(`Author avatar URL: ${authorAvatarUrl}`);
+          }
+        }
+      }
+    } else {
+      console.log(`Author not found in direct authors response`);
+    }
   } else {
-    // If we couldn't find author in includes, make a direct API call
-    console.log(`Author entry not found in includes. Will use direct API call.`);
+    console.log(`Author entry not found in includes and no direct authors response available`);
   }
   
   // Get category information
