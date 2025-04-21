@@ -99,6 +99,7 @@ export async function getFeaturedArticles(): Promise<Article[]> {
       console.log(`Directly found ${authorsResponse.items.length} authors`);
       authorsResponse.items.forEach((author: any, index: number) => {
         console.log(`Direct author ${index + 1}: ID=${author.sys.id}, Name=${author.fields?.name?.['en-US'] || 'unnamed'}`);
+        console.log(`FULL AUTHOR FIELDS: ${JSON.stringify(author.fields, null, 2)}`);
       });
     }
     
@@ -109,7 +110,7 @@ export async function getFeaturedArticles(): Promise<Article[]> {
     if (assetResponse && assetResponse.items) {
       console.log(`Directly found ${assetResponse.items.length} assets`);
       assetResponse.items.forEach((asset: any, index: number) => {
-        console.log(`Direct asset ${index + 1}: ID=${asset.sys.id}, URL=${asset.fields?.file?.url || 'no url'}`);
+        console.log(`Direct asset ${index + 1}: ID=${asset.sys.id}, URL=${asset.fields?.file?.['en-US']?.url || asset.fields?.file?.url || 'no url'}`);
       });
     }
     
@@ -124,7 +125,7 @@ export async function getFeaturedArticles(): Promise<Article[]> {
     if (response.includes && response.includes.Asset) {
       console.log('Found assets in response:', response.includes.Asset.length);
       response.includes.Asset.forEach((asset: any, index: number) => {
-        console.log(`Asset ${index + 1}: ID=${asset.sys.id}, URL=${asset.fields?.file?.url || 'no url'}`);
+        console.log(`Asset ${index + 1}: ID=${asset.sys.id}, URL=${asset.fields?.file?.['en-US']?.url || asset.fields?.file?.url || 'no url'}`);
       });
     } else {
       console.log('No assets included in the response, adding them manually');
@@ -168,7 +169,12 @@ export async function getFeaturedArticles(): Promise<Article[]> {
       }
     }
     
-    return response.items.map((item: any) => transformContentfulArticle(item, assetResponse, authorsResponse));
+    const articles = response.items.map((item: any) => transformContentfulArticle(item, assetResponse, authorsResponse));
+    
+    // Log the final articles for debugging
+    console.log('FINAL ARTICLES:', JSON.stringify(articles, null, 2));
+    
+    return articles;
   } catch (error) {
     console.error('Error fetching featured articles:', error);
     return [];
@@ -453,7 +459,7 @@ export async function getSiteStats(): Promise<SiteStats | null> {
 // Helper functions to transform Contentful data
 function transformContentfulArticle(item: any, assetResponse?: any, authorsResponse?: any): Article {
   const fields = item.fields;
-  const featuredImageAssetId = fields.featuredImage?.sys?.id;
+  const featuredImageAssetId = fields.featuredImage?.['en-US']?.sys?.id || fields.featuredImage?.sys?.id;
   
   // Debug for author relationship
   console.log("Article author field:", JSON.stringify(fields.author, null, 2));
@@ -464,7 +470,7 @@ function transformContentfulArticle(item: any, assetResponse?: any, authorsRespo
   let authorAvatarUrl = '';
   
   // First try to find the linked entry in the includes
-  const authorEntryId = fields.author?.sys?.id;
+  const authorEntryId = fields.author?.['en-US']?.sys?.id || fields.author?.sys?.id;
   console.log(`Looking for author with ID: ${authorEntryId}`);
   const authorEntry = findLinkedEntry(item, authorEntryId);
   
@@ -511,10 +517,15 @@ function transformContentfulArticle(item: any, assetResponse?: any, authorsRespo
     if (directAuthor) {
       console.log('Found author in direct authors response:', JSON.stringify(directAuthor.fields, null, 2));
       authorId = directAuthor.sys.id;
-      authorName = directAuthor.fields?.name?.['en-US'] || 'Unknown Author';
+      // Access the name field correctly - it could be localized in 'en-US'
+      authorName = directAuthor.fields?.name?.['en-US'] || directAuthor.fields?.name || 'Unknown Author';
+      console.log(`Set author name to: ${authorName}`);
       
-      // Get avatar ID
-      const authorAvatarId = directAuthor.fields?.avatar?.['en-US']?.sys?.id;
+      // Get avatar ID - handle both localized and direct versions
+      const authorAvatarId = directAuthor.fields?.avatar?.['en-US']?.sys?.id || 
+                             directAuthor.fields?.avatar?.sys?.id;
+      
+      console.log(`Found author avatar ID: ${authorAvatarId}`);
       
       if (authorAvatarId) {
         // Look for the avatar in the authors response includes first
