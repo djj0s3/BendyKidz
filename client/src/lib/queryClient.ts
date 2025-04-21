@@ -7,6 +7,7 @@ import {
   fallbackAboutContent,
   fallbackTeamMembers,
   fallbackSiteStats,
+  fallbackHeroSection,
   getRelatedArticlesFallback,
   getArticleBySlugFallback,
   getCategoryBySlugFallback,
@@ -20,7 +21,8 @@ const API_FALLBACK_MAP: Record<string, any> = {
   '/api/testimonials': fallbackTestimonials,
   '/api/about': fallbackAboutContent,
   '/api/team': fallbackTeamMembers,
-  '/api/stats': fallbackSiteStats
+  '/api/stats': fallbackSiteStats,
+  '/api/hero': fallbackHeroSection
 };
 
 async function throwIfResNotOk(res: Response) {
