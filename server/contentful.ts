@@ -95,6 +95,16 @@ export async function getFeaturedArticles(): Promise<Article[]> {
       order: '-sys.createdAt'
     });
     
+    // Debug asset information
+    if (response.includes && response.includes.Asset) {
+      console.log('Found assets in response:', response.includes.Asset.length);
+      response.includes.Asset.forEach((asset: any, index: number) => {
+        console.log(`Asset ${index + 1}: ID=${asset.sys.id}, URL=${asset.fields?.file?.url || 'no url'}`);
+      });
+    } else {
+      console.log('No assets included in the response');
+    }
+    
     return response.items.map(transformContentfulArticle);
   } catch (error) {
     console.error('Error fetching featured articles:', error);
@@ -255,7 +265,21 @@ function transformContentfulArticle(item: any): Article {
   const fields = item.fields;
   const authorEntry = findLinkedEntry(item, fields.author?.sys?.id);
   const categoryEntry = findLinkedEntry(item, fields.category?.sys?.id);
-  const featuredImageAsset = findLinkedAsset(item, fields.featuredImage?.sys?.id);
+  const featuredImageAssetId = fields.featuredImage?.sys?.id;
+  const featuredImageAsset = findLinkedAsset(item, featuredImageAssetId);
+  
+  // Debug image information
+  console.log(`Transforming article: ${fields.title} (ID: ${item.sys.id})`);
+  console.log(`  Featured image asset ID: ${featuredImageAssetId || 'none'}`);
+  if (featuredImageAsset) {
+    console.log(`  Featured image details:`);
+    console.log(`    - Found asset: ${featuredImageAsset.sys.id}`);
+    console.log(`    - Has file field: ${!!featuredImageAsset.fields?.file}`);
+    console.log(`    - File URL: ${featuredImageAsset.fields?.file?.url || 'none'}`);
+    console.log(`    - Full Image URL: ${'https:' + featuredImageAsset.fields?.file?.url}`);
+  } else {
+    console.log(`  No featured image asset found`);
+  }
   
   return {
     id: item.sys.id,
@@ -371,9 +395,33 @@ function findLinkedEntry(response: any, entryId: string) {
 
 // Helper to find linked assets
 function findLinkedAsset(response: any, assetId: string) {
-  if (!assetId || !response.includes || !response.includes.Asset) {
+  if (!assetId) {
+    console.log('findLinkedAsset called with null/undefined assetId');
     return null;
   }
   
-  return response.includes.Asset.find((asset: any) => asset.sys.id === assetId);
+  if (!response.includes) {
+    console.log(`findLinkedAsset: response has no includes property for asset ${assetId}`);
+    return null;
+  }
+  
+  if (!response.includes.Asset) {
+    console.log(`findLinkedAsset: response includes has no Asset property for asset ${assetId}`);
+    console.log('Available includes:', Object.keys(response.includes).join(', '));
+    return null;
+  }
+  
+  console.log(`Looking for asset ID ${assetId} among ${response.includes.Asset.length} assets`);
+  
+  const asset = response.includes.Asset.find((asset: any) => asset.sys.id === assetId);
+  
+  if (!asset) {
+    console.log(`Asset with ID ${assetId} not found in includes.Asset array`);
+    // List all available asset IDs for debugging
+    console.log('Available asset IDs:', response.includes.Asset.map((a: any) => a.sys.id).join(', '));
+  } else {
+    console.log(`Found asset with ID ${assetId}`);
+  }
+  
+  return asset;
 }
