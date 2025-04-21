@@ -318,9 +318,64 @@ export async function getSiteStats(): Promise<SiteStats | null> {
 // Helper functions to transform Contentful data
 function transformContentfulArticle(item: any, assetResponse?: any): Article {
   const fields = item.fields;
-  const authorEntry = findLinkedEntry(item, fields.author?.sys?.id);
-  const categoryEntry = findLinkedEntry(item, fields.category?.sys?.id);
   const featuredImageAssetId = fields.featuredImage?.sys?.id;
+  
+  // Debug for author relationship
+  console.log("Article author field:", JSON.stringify(fields.author, null, 2));
+  
+  // Get author information
+  let authorId = '';
+  let authorName = 'Unknown Author';
+  let authorAvatarUrl = '';
+  
+  // First try to find the linked entry in the includes
+  const authorEntryId = fields.author?.sys?.id;
+  console.log(`Looking for author with ID: ${authorEntryId}`);
+  const authorEntry = findLinkedEntry(item, authorEntryId);
+  
+  if (authorEntry) {
+    console.log("Found author entry in includes:", JSON.stringify(authorEntry.fields, null, 2));
+    authorId = authorEntry.sys.id;
+    authorName = authorEntry.fields?.name?.['en-US'] || authorEntry.fields?.name || 'Unknown Author';
+    
+    // Get author avatar
+    const authorAvatarId = authorEntry.fields?.avatar?.['en-US']?.sys?.id || 
+                           authorEntry.fields?.avatar?.sys?.id;
+    
+    console.log(`Author avatar ID: ${authorAvatarId}`);
+    
+    if (authorAvatarId) {
+      // Try to find in includes first
+      let authorAvatarAsset = findLinkedAsset(item, authorAvatarId);
+      
+      // If not found, try direct assets
+      if (!authorAvatarAsset && assetResponse && assetResponse.items) {
+        console.log(`Looking for author avatar ${authorAvatarId} in direct asset response`);
+        authorAvatarAsset = assetResponse.items.find((asset: any) => asset.sys.id === authorAvatarId);
+        
+        if (authorAvatarAsset) {
+          console.log(`Found author avatar ${authorAvatarId} in direct asset response`);
+        }
+      }
+      
+      if (authorAvatarAsset) {
+        const fileUrl = authorAvatarAsset.fields?.file?.['en-US']?.url || 
+                       authorAvatarAsset.fields?.file?.url;
+        
+        if (fileUrl) {
+          authorAvatarUrl = 'https:' + fileUrl;
+          console.log(`Author avatar URL: ${authorAvatarUrl}`);
+        }
+      }
+    }
+  } else {
+    // If we couldn't find author in includes, make a direct API call
+    console.log(`Author entry not found in includes. Will use direct API call.`);
+  }
+  
+  // Get category information
+  const categoryEntryId = fields.category?.sys?.id;
+  const categoryEntry = findLinkedEntry(item, categoryEntryId);
   
   // Try to find the asset in the response includes first
   let featuredImageAsset = findLinkedAsset(item, featuredImageAssetId);
@@ -342,32 +397,23 @@ function transformContentfulArticle(item: any, assetResponse?: any): Article {
     console.log(`  Featured image details:`);
     console.log(`    - Found asset: ${featuredImageAsset.sys.id}`);
     console.log(`    - Has file field: ${!!featuredImageAsset.fields?.file}`);
-    console.log(`    - File URL: ${featuredImageAsset.fields?.file?.url || 'none'}`);
-    if (featuredImageAsset.fields?.file?.url) {
-      console.log(`    - Full Image URL: ${'https:' + featuredImageAsset.fields.file.url}`);
+    
+    // Handle both direct and localized fields
+    const fileUrl = featuredImageAsset.fields?.file?.['en-US']?.url || 
+                   featuredImageAsset.fields?.file?.url;
+    
+    console.log(`    - File URL: ${fileUrl || 'none'}`);
+    if (fileUrl) {
+      console.log(`    - Full Image URL: ${'https:' + fileUrl}`);
     }
   } else {
     console.log(`  No featured image asset found`);
   }
   
-  // Get avatar from author
-  let authorAvatarUrl = '';
-  if (authorEntry && authorEntry.fields && authorEntry.fields.avatar) {
-    const authorAvatarId = authorEntry.fields.avatar?.sys?.id;
-    
-    // Try to find in includes first
-    let authorAvatarAsset = findLinkedAsset(item, authorAvatarId);
-    
-    // If not found, try direct assets
-    if (!authorAvatarAsset && assetResponse && assetResponse.items) {
-      authorAvatarAsset = assetResponse.items.find((asset: any) => asset.sys.id === authorAvatarId);
-    }
-    
-    if (authorAvatarAsset && authorAvatarAsset.fields?.file?.url) {
-      authorAvatarUrl = 'https:' + authorAvatarAsset.fields.file.url;
-      console.log(`  Author avatar URL: ${authorAvatarUrl}`);
-    }
-  }
+  // Get file URL considering both direct and localized fields
+  const featuredImageUrl = featuredImageAsset ? 
+    'https:' + (featuredImageAsset.fields?.file?.['en-US']?.url || 
+               featuredImageAsset.fields?.file?.url || '') : '';
   
   return {
     id: item.sys.id,
@@ -375,19 +421,19 @@ function transformContentfulArticle(item: any, assetResponse?: any): Article {
     slug: fields.slug || '',
     excerpt: fields.excerpt || '',
     content: fields.content || '',
-    featuredImage: featuredImageAsset?.fields?.file?.url ? 'https:' + featuredImageAsset.fields.file.url : '',
+    featuredImage: featuredImageUrl,
     publishedDate: fields.publishedDate || item.sys.createdAt,
     readingTime: fields.readingTime || 5,
     author: {
-      id: authorEntry?.sys?.id || '',
-      name: authorEntry?.fields?.name || 'Unknown Author',
+      id: authorId,
+      name: authorName,
       avatar: authorAvatarUrl
     },
     category: {
       id: categoryEntry?.sys?.id || '',
-      name: categoryEntry?.fields?.name || 'Uncategorized',
-      slug: categoryEntry?.fields?.slug || 'uncategorized',
-      description: categoryEntry?.fields?.description || ''
+      name: categoryEntry?.fields?.name?.['en-US'] || categoryEntry?.fields?.name || 'Uncategorized',
+      slug: categoryEntry?.fields?.slug?.['en-US'] || categoryEntry?.fields?.slug || 'uncategorized',
+      description: categoryEntry?.fields?.description?.['en-US'] || categoryEntry?.fields?.description || ''
     },
     tags: fields.tags || []
   };
