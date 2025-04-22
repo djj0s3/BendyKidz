@@ -97,6 +97,36 @@ async function createHeroSectionContentType(environment) {
           required: true
         },
         {
+          id: 'primaryButtonColor',
+          name: 'Primary Button Color',
+          type: 'Symbol',
+          required: false,
+          validations: [
+            {
+              regexp: {
+                pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                flags: null
+              },
+              message: 'Please enter a valid hex color code (e.g., #FF5733)'
+            }
+          ]
+        },
+        {
+          id: 'primaryButtonTextColor',
+          name: 'Primary Button Text Color',
+          type: 'Symbol',
+          required: false,
+          validations: [
+            {
+              regexp: {
+                pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                flags: null
+              },
+              message: 'Please enter a valid hex color code (e.g., #FFFFFF)'
+            }
+          ]
+        },
+        {
           id: 'secondaryButtonText',
           name: 'Secondary Button Text',
           type: 'Symbol',
@@ -107,6 +137,36 @@ async function createHeroSectionContentType(environment) {
           name: 'Secondary Button Link',
           type: 'Symbol',
           required: true
+        },
+        {
+          id: 'secondaryButtonColor',
+          name: 'Secondary Button Color',
+          type: 'Symbol',
+          required: false,
+          validations: [
+            {
+              regexp: {
+                pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                flags: null
+              },
+              message: 'Please enter a valid hex color code (e.g., #FFFFFF)'
+            }
+          ]
+        },
+        {
+          id: 'secondaryButtonTextColor',
+          name: 'Secondary Button Text Color',
+          type: 'Symbol',
+          required: false,
+          validations: [
+            {
+              regexp: {
+                pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                flags: null
+              },
+              message: 'Please enter a valid hex color code (e.g., #000000)'
+            }
+          ]
         }
       ]
     });
@@ -189,8 +249,12 @@ async function createHeroSectionContent(environment) {
       imageAlt: 'Child engaging in therapy activities',
       primaryButtonText: 'Start Exploring',
       primaryButtonLink: '/articles',
+      primaryButtonColor: '#7C3AED', // Purple accent color
+      primaryButtonTextColor: '#FFFFFF', // White text
       secondaryButtonText: 'Meet the Therapist',
-      secondaryButtonLink: '/about'
+      secondaryButtonLink: '/about',
+      secondaryButtonColor: '#FFFFFF', // White background
+      secondaryButtonTextColor: '#7C3AED' // Purple text
     });
     
     console.log('Hero section content created successfully');

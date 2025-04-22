@@ -121,8 +121,12 @@ export interface HeroSection {
   imageAlt: string;
   primaryButtonText: string;
   primaryButtonLink: string;
+  primaryButtonColor?: string;
+  primaryButtonTextColor?: string;
   secondaryButtonText: string;
   secondaryButtonLink: string;
+  secondaryButtonColor?: string;
+  secondaryButtonTextColor?: string;
 }
 
 export interface SiteStats {

@@ -37,13 +37,21 @@ export default function HeroSection() {
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
               <Link 
                 href={heroContent?.primaryButtonLink || fallbackHeroSection.primaryButtonLink} 
-                className="btn bg-accent hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-full inline-block text-center"
+                style={{
+                  backgroundColor: heroContent?.primaryButtonColor || fallbackHeroSection.primaryButtonColor || '#7C3AED',
+                  color: heroContent?.primaryButtonTextColor || fallbackHeroSection.primaryButtonTextColor || '#FFFFFF'
+                }}
+                className="btn hover:bg-opacity-90 font-bold py-3 px-6 rounded-full inline-block text-center"
               >
                 {heroContent?.primaryButtonText || fallbackHeroSection.primaryButtonText}
               </Link>
               <Link 
                 href={heroContent?.secondaryButtonLink || fallbackHeroSection.secondaryButtonLink} 
-                className="btn bg-white hover:bg-opacity-90 text-primary font-bold py-3 px-6 rounded-full inline-block text-center"
+                style={{
+                  backgroundColor: heroContent?.secondaryButtonColor || fallbackHeroSection.secondaryButtonColor || '#FFFFFF',
+                  color: heroContent?.secondaryButtonTextColor || fallbackHeroSection.secondaryButtonTextColor || '#7C3AED'
+                }}
+                className="btn hover:bg-opacity-90 font-bold py-3 px-6 rounded-full inline-block text-center"
               >
                 {heroContent?.secondaryButtonText || fallbackHeroSection.secondaryButtonText}
               </Link>

@@ -352,8 +352,12 @@ export const fallbackHeroSection: HeroSection = {
   imageAlt: 'Child engaging in therapy activities',
   primaryButtonText: 'Start Exploring',
   primaryButtonLink: '/articles',
+  primaryButtonColor: '#7C3AED', // Purple accent color
+  primaryButtonTextColor: '#FFFFFF', // White text
   secondaryButtonText: 'Meet the Therapist',
-  secondaryButtonLink: '/about'
+  secondaryButtonLink: '/about',
+  secondaryButtonColor: '#FFFFFF', // White background
+  secondaryButtonTextColor: '#7C3AED' // Purple text
 };
 
 export const fallbackSiteStats: SiteStats = {

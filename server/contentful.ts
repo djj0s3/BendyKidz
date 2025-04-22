@@ -769,8 +769,12 @@ function transformContentfulHeroSection(item: any): HeroSection {
     imageAlt: fields.imageAlt?.['en-US'] || fields.imageAlt || '',
     primaryButtonText: fields.primaryButtonText?.['en-US'] || fields.primaryButtonText || 'Learn More',
     primaryButtonLink: fields.primaryButtonLink?.['en-US'] || fields.primaryButtonLink || '/articles',
+    primaryButtonColor: fields.primaryButtonColor?.['en-US'] || fields.primaryButtonColor || '#7C3AED',
+    primaryButtonTextColor: fields.primaryButtonTextColor?.['en-US'] || fields.primaryButtonTextColor || '#FFFFFF',
     secondaryButtonText: fields.secondaryButtonText?.['en-US'] || fields.secondaryButtonText || 'About Us',
-    secondaryButtonLink: fields.secondaryButtonLink?.['en-US'] || fields.secondaryButtonLink || '/about'
+    secondaryButtonLink: fields.secondaryButtonLink?.['en-US'] || fields.secondaryButtonLink || '/about',
+    secondaryButtonColor: fields.secondaryButtonColor?.['en-US'] || fields.secondaryButtonColor || '#FFFFFF',
+    secondaryButtonTextColor: fields.secondaryButtonTextColor?.['en-US'] || fields.secondaryButtonTextColor || '#7C3AED'
   };
   
   console.log('Transformed hero section:', heroSection);
