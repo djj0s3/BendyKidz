@@ -9,6 +9,12 @@ export default function HeroSection() {
   
   const { data: heroContent, isLoading: heroLoading } = useQuery<HeroSectionType>({
     queryKey: ['/api/hero'],
+    onSuccess: (data) => {
+      console.log("Hero section data:", data);
+    },
+    onError: (error) => {
+      console.error("Error loading hero section:", error);
+    }
   });
 
   return (

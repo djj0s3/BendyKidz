@@ -441,16 +441,22 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
 // Get hero section content
 export async function getHeroSection(): Promise<HeroSection | null> {
   try {
+    console.log('Fetching hero section from Contentful...');
     const response = await fetchFromContentful('/entries', {
       content_type: 'heroSection',
       include: '2'
     });
     
+    console.log('Hero section response:', JSON.stringify(response, null, 2));
+    
     if (response.items.length === 0) {
+      console.log('No hero section found in Contentful');
       return null;
     }
     
-    return transformContentfulHeroSection(response.items[0]);
+    const heroSection = transformContentfulHeroSection(response.items[0]);
+    console.log('Transformed hero section:', heroSection);
+    return heroSection;
   } catch (error) {
     console.error('Error fetching hero section:', error);
     return null;
