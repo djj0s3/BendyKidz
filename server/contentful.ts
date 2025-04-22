@@ -732,15 +732,37 @@ function transformContentfulTeamMember(item: any): TeamMember {
 
 function transformContentfulHeroSection(item: any): HeroSection {
   const fields = item.fields;
+  
+  // Extract image id, handling both localized and direct fields
   const imageId = fields.image?.sys?.id || fields.image?.['en-US']?.sys?.id;
+  console.log('Hero section image ID:', imageId);
+  
+  // Try to find the image asset in the response includes
   const imageAsset = findLinkedAsset(item, imageId);
+  console.log('Hero section image asset found:', !!imageAsset);
   
-  // Get image URL considering both direct and localized fields
-  const imageUrl = imageAsset ? 
-    'https:' + (imageAsset.fields?.file?.['en-US']?.url || 
-               imageAsset.fields?.file?.url || '') : '';
+  // Log the full image asset details if found
+  if (imageAsset) {
+    console.log('Hero section image asset fields:', JSON.stringify(imageAsset.fields, null, 2));
+  }
   
-  return {
+  // Extract image URL considering both direct and localized fields
+  let imageUrl = '';
+  if (imageAsset) {
+    // First check for localized URL
+    if (imageAsset.fields?.file?.['en-US']?.url) {
+      imageUrl = 'https:' + imageAsset.fields.file['en-US'].url;
+    } 
+    // Then fall back to direct URL
+    else if (imageAsset.fields?.file?.url) {
+      imageUrl = 'https:' + imageAsset.fields.file.url;
+    }
+  }
+  
+  console.log('Final hero section image URL:', imageUrl);
+  
+  // Create the Hero section object
+  const heroSection = {
     title: fields.title?.['en-US'] || fields.title || '',
     subtitle: fields.subtitle?.['en-US'] || fields.subtitle || '',
     image: imageUrl,
@@ -750,6 +772,9 @@ function transformContentfulHeroSection(item: any): HeroSection {
     secondaryButtonText: fields.secondaryButtonText?.['en-US'] || fields.secondaryButtonText || 'About Us',
     secondaryButtonLink: fields.secondaryButtonLink?.['en-US'] || fields.secondaryButtonLink || '/about'
   };
+  
+  console.log('Transformed hero section:', heroSection);
+  return heroSection;
 }
 
 function transformContentfulSiteStats(item: any): SiteStats {
