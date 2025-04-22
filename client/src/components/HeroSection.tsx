@@ -23,9 +23,10 @@ export default function HeroSection() {
     secondaryButtonLink: "/about"
   };
   
-  // Log data and use direct image URL for debugging
+  // Log data and use local image
   console.log("Hero content from API:", heroContent);
-  const heroImageUrl = "https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
+  // Use a local image path that's guaranteed to work
+  const heroImageUrl = "/images/hero-image.png";
 
   return (
     <section className="bg-gradient-to-br from-primary to-secondary text-white">
