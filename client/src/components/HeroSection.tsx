@@ -11,8 +11,17 @@ export default function HeroSection() {
     queryKey: ['/api/hero'],
   });
 
-  // Log hero section data for debugging
-  console.log("Hero section data:", heroContent);
+  // Fallback hero data if Contentful doesn't provide it
+  const fallbackHeroData: HeroSectionType = {
+    title: "Fun Occupational Therapy for Kids that Makes a Difference",
+    subtitle: "Expert resources to help your child develop skills, confidence, and independence through play-based therapy.",
+    image: "https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    imageAlt: "Child engaging in therapy activities",
+    primaryButtonText: "Start Exploring",
+    primaryButtonLink: "/articles",
+    secondaryButtonText: "Meet the Therapist",
+    secondaryButtonLink: "/about"
+  };
 
   return (
     <section className="bg-gradient-to-br from-primary to-secondary text-white">
@@ -23,38 +32,44 @@ export default function HeroSection() {
               {heroLoading ? (
                 <span className="animate-pulse">Loading...</span>
               ) : (
-                heroContent?.title || 'Fun Occupational Therapy for Kids that Makes a Difference'
+                heroContent?.title || fallbackHeroData.title
               )}
             </h1>
             <p className="text-lg md:text-xl opacity-90 mb-6">
               {heroLoading ? (
                 <span className="animate-pulse">Loading...</span>
               ) : (
-                heroContent?.subtitle || 'Expert resources to help your child develop skills, confidence, and independence through play-based therapy.'
+                heroContent?.subtitle || fallbackHeroData.subtitle
               )}
             </p>
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
               <Link 
-                href={heroContent?.primaryButtonLink || "/articles"} 
+                href={heroContent?.primaryButtonLink || fallbackHeroData.primaryButtonLink} 
                 className="btn bg-accent hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-full inline-block text-center"
               >
-                {heroContent?.primaryButtonText || "Start Exploring"}
+                {heroContent?.primaryButtonText || fallbackHeroData.primaryButtonText}
               </Link>
               <Link 
-                href={heroContent?.secondaryButtonLink || "/about"} 
+                href={heroContent?.secondaryButtonLink || fallbackHeroData.secondaryButtonLink} 
                 className="btn bg-white hover:bg-opacity-90 text-primary font-bold py-3 px-6 rounded-full inline-block text-center"
               >
-                {heroContent?.secondaryButtonText || "Meet the Therapist"}
+                {heroContent?.secondaryButtonText || fallbackHeroData.secondaryButtonText}
               </Link>
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center">
             <img 
-              src={heroContent?.image || "https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"} 
-              alt={heroContent?.imageAlt || "Child engaging in therapy activities"} 
+              src={heroContent?.image || fallbackHeroData.image} 
+              alt={heroContent?.imageAlt || fallbackHeroData.imageAlt} 
               className="rounded-lg shadow-lg max-w-full h-auto" 
               width="500" 
               height="375"
+              onError={(e) => {
+                // Fallback to a direct URL if the image fails to load
+                const target = e.target as HTMLImageElement;
+                console.log("Image failed to load, using fallback");
+                target.src = "https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
+              }}
             />
           </div>
         </div>
