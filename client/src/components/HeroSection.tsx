@@ -22,6 +22,10 @@ export default function HeroSection() {
     secondaryButtonText: "Meet the Therapist",
     secondaryButtonLink: "/about"
   };
+  
+  // Log data and use direct image URL for debugging
+  console.log("Hero content from API:", heroContent);
+  const heroImageUrl = "https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
 
   return (
     <section className="bg-gradient-to-br from-primary to-secondary text-white">
@@ -59,17 +63,12 @@ export default function HeroSection() {
           </div>
           <div className="md:w-1/2 flex justify-center">
             <img 
-              src={heroContent?.image || fallbackHeroData.image} 
-              alt={heroContent?.imageAlt || fallbackHeroData.imageAlt} 
+              // Directly use the image URL for now to guarantee it loads
+              src={heroImageUrl} 
+              alt="Child engaging in therapy activities" 
               className="rounded-lg shadow-lg max-w-full h-auto" 
               width="500" 
               height="375"
-              onError={(e) => {
-                // Fallback to a direct URL if the image fails to load
-                const target = e.target as HTMLImageElement;
-                console.log("Image failed to load, using fallback");
-                target.src = "https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
-              }}
             />
           </div>
         </div>
