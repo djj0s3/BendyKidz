@@ -1,13 +1,9 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { SiteStats, HeroSection as HeroSectionType } from "@shared/schema";
-import { fallbackHeroSection, fallbackSiteStats } from "../lib/fallbackData";
+import { HeroSection as HeroSectionType } from "@shared/schema";
+import { fallbackHeroSection } from "../lib/fallbackData";
 
 export default function HeroSection() {
-  const { data: stats, isLoading: statsLoading } = useQuery<SiteStats>({
-    queryKey: ['/api/stats'],
-  });
-  
   const { data: heroContent, isLoading: heroLoading } = useQuery<HeroSectionType>({
     queryKey: ['/api/hero'],
   });
@@ -71,48 +67,6 @@ export default function HeroSection() {
                 target.src = "/images/hero-image.png";
               }}
             />
-          </div>
-        </div>
-        
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-          <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-sm rounded-lg p-6">
-            <div className="inline-block p-3 bg-white rounded-full text-primary mb-4">
-              <i className="fas fa-book text-xl"></i>
-            </div>
-            <h3 className="text-xl font-bold font-heading mb-2">
-              {statsLoading ? (
-                <span className="animate-pulse bg-white bg-opacity-30 rounded px-3">---</span>
-              ) : (
-                `${stats?.resources || fallbackSiteStats.resources}+`
-              )}
-            </h3>
-            <p className="opacity-90">Resources</p>
-          </div>
-          <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-sm rounded-lg p-6">
-            <div className="inline-block p-3 bg-white rounded-full text-primary mb-4">
-              <i className="fas fa-user-friends text-xl"></i>
-            </div>
-            <h3 className="text-xl font-bold font-heading mb-2">
-              {statsLoading ? (
-                <span className="animate-pulse bg-white bg-opacity-30 rounded px-3">---</span>
-              ) : (
-                `${stats?.specialists || fallbackSiteStats.specialists}`
-              )}
-            </h3>
-            <p className="opacity-90">Specialist</p>
-          </div>
-          <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-sm rounded-lg p-6">
-            <div className="inline-block p-3 bg-white rounded-full text-primary mb-4">
-              <i className="fas fa-certificate text-xl"></i>
-            </div>
-            <h3 className="text-xl font-bold font-heading mb-2">
-              {statsLoading ? (
-                <span className="animate-pulse bg-white bg-opacity-30 rounded px-3">---</span>
-              ) : (
-                `${stats?.activityTypes || fallbackSiteStats.activityTypes}+`
-              )}
-            </h3>
-            <p className="opacity-90">Activity Types</p>
           </div>
         </div>
       </div>
