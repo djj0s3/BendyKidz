@@ -228,9 +228,9 @@ async function createHeroSectionContent(environment) {
     // Process and publish the asset
     await heroImage.processForAllLocales();
     
-    // Wait for asset to be processed
-    console.log('Waiting for hero image to be processed...');
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // Wait for asset to be processed with a longer timeout
+    console.log('Waiting for hero image to be processed (this may take up to 10 seconds)...');
+    await new Promise(resolve => setTimeout(resolve, 10000));
     
     await heroImage.publish();
     console.log('Hero image asset published successfully');
