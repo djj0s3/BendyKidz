@@ -348,7 +348,7 @@ export const fallbackTeamMembers: TeamMember[] = [
 export const fallbackHeroSection: HeroSection = {
   title: 'Fun Occupational Therapy for Kids that Makes a Difference',
   subtitle: 'Expert resources to help your child develop skills, confidence, and independence through play-based therapy.',
-  image: 'https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+  image: '/images/hero-image.png', // Use local image as fallback
   imageAlt: 'Child engaging in therapy activities',
   primaryButtonText: 'Start Exploring',
   primaryButtonLink: '/articles',

@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteStats, HeroSection as HeroSectionType } from "@shared/schema";
+import { fallbackHeroSection, fallbackSiteStats } from "../lib/fallbackData";
 
 export default function HeroSection() {
   const { data: stats, isLoading: statsLoading } = useQuery<SiteStats>({
@@ -11,22 +12,8 @@ export default function HeroSection() {
     queryKey: ['/api/hero'],
   });
 
-  // Fallback hero data if Contentful doesn't provide it
-  const fallbackHeroData: HeroSectionType = {
-    title: "Fun Occupational Therapy for Kids that Makes a Difference",
-    subtitle: "Expert resources to help your child develop skills, confidence, and independence through play-based therapy.",
-    image: "https://images.unsplash.com/photo-1574436323527-85696ca0ac2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    imageAlt: "Child engaging in therapy activities",
-    primaryButtonText: "Start Exploring",
-    primaryButtonLink: "/articles",
-    secondaryButtonText: "Meet the Therapist",
-    secondaryButtonLink: "/about"
-  };
-  
-  // Log data and use local image
+  // Log data for debugging
   console.log("Hero content from API:", heroContent);
-  // Use a local image path that's guaranteed to work
-  const heroImageUrl = "/images/hero-image.png";
 
   return (
     <section className="bg-gradient-to-br from-primary to-secondary text-white">
@@ -37,39 +24,44 @@ export default function HeroSection() {
               {heroLoading ? (
                 <span className="animate-pulse">Loading...</span>
               ) : (
-                heroContent?.title || fallbackHeroData.title
+                heroContent?.title || fallbackHeroSection.title
               )}
             </h1>
             <p className="text-lg md:text-xl opacity-90 mb-6">
               {heroLoading ? (
                 <span className="animate-pulse">Loading...</span>
               ) : (
-                heroContent?.subtitle || fallbackHeroData.subtitle
+                heroContent?.subtitle || fallbackHeroSection.subtitle
               )}
             </p>
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
               <Link 
-                href={heroContent?.primaryButtonLink || fallbackHeroData.primaryButtonLink} 
+                href={heroContent?.primaryButtonLink || fallbackHeroSection.primaryButtonLink} 
                 className="btn bg-accent hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-full inline-block text-center"
               >
-                {heroContent?.primaryButtonText || fallbackHeroData.primaryButtonText}
+                {heroContent?.primaryButtonText || fallbackHeroSection.primaryButtonText}
               </Link>
               <Link 
-                href={heroContent?.secondaryButtonLink || fallbackHeroData.secondaryButtonLink} 
+                href={heroContent?.secondaryButtonLink || fallbackHeroSection.secondaryButtonLink} 
                 className="btn bg-white hover:bg-opacity-90 text-primary font-bold py-3 px-6 rounded-full inline-block text-center"
               >
-                {heroContent?.secondaryButtonText || fallbackHeroData.secondaryButtonText}
+                {heroContent?.secondaryButtonText || fallbackHeroSection.secondaryButtonText}
               </Link>
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center">
             <img 
-              // Directly use the image URL for now to guarantee it loads
-              src={heroImageUrl} 
-              alt="Child engaging in therapy activities" 
+              src={heroContent?.image || fallbackHeroSection.image} 
+              alt={heroContent?.imageAlt || fallbackHeroSection.imageAlt} 
               className="rounded-lg shadow-lg max-w-full h-auto" 
               width="500" 
               height="375"
+              onError={(e) => {
+                // Fallback to our local image if the content image fails to load
+                const target = e.target as HTMLImageElement;
+                console.log("Image failed to load, using fallback");
+                target.src = "/images/hero-image.png";
+              }}
             />
           </div>
         </div>
@@ -83,7 +75,7 @@ export default function HeroSection() {
               {statsLoading ? (
                 <span className="animate-pulse bg-white bg-opacity-30 rounded px-3">---</span>
               ) : (
-                `${stats?.resources || '200'}+`
+                `${stats?.resources || fallbackSiteStats.resources}+`
               )}
             </h3>
             <p className="opacity-90">Resources</p>
@@ -96,7 +88,7 @@ export default function HeroSection() {
               {statsLoading ? (
                 <span className="animate-pulse bg-white bg-opacity-30 rounded px-3">---</span>
               ) : (
-                `${stats?.specialists || '1'}`
+                `${stats?.specialists || fallbackSiteStats.specialists}`
               )}
             </h3>
             <p className="opacity-90">Specialist</p>
@@ -109,7 +101,7 @@ export default function HeroSection() {
               {statsLoading ? (
                 <span className="animate-pulse bg-white bg-opacity-30 rounded px-3">---</span>
               ) : (
-                `${stats?.activityTypes || '15'}+`
+                `${stats?.activityTypes || fallbackSiteStats.activityTypes}+`
               )}
             </h3>
             <p className="opacity-90">Activity Types</p>
