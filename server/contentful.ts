@@ -1,4 +1,4 @@
-import { Article, Category, Testimonial, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection } from '@shared/schema';
+import { Article, Category, Testimonial, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection } from '@shared/schema';
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID || '';
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN || '';
@@ -481,6 +481,29 @@ export async function getSiteStats(): Promise<SiteStats | null> {
   }
 }
 
+// Get all featured collections
+export async function getFeaturedCollections(): Promise<FeaturedCollection[]> {
+  try {
+    console.log('Fetching featured collections from Contentful...');
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'featuredCollection',
+      order: 'fields.displayOrder',
+      include: '1',
+    });
+
+    if (!response?.items?.length) {
+      console.log('No featured collections found in Contentful');
+      return [];
+    }
+
+    console.log(`Found ${response.items.length} featured collections`);
+    return response.items.map(transformContentfulFeaturedCollection);
+  } catch (error) {
+    console.error('Error fetching featured collections:', error);
+    return [];
+  }
+}
+
 // Helper functions to transform Contentful data
 function transformContentfulArticle(item: any, assetResponse?: any, authorsResponse?: any): Article {
   const fields = item.fields;
@@ -788,6 +811,21 @@ function transformContentfulSiteStats(item: any): SiteStats {
     resources: fields.resources || 0,
     specialists: fields.specialists || 0,
     activityTypes: fields.activityTypes || 0
+  };
+}
+
+function transformContentfulFeaturedCollection(item: any): FeaturedCollection {
+  const fields = item.fields;
+  
+  return {
+    id: item.sys.id,
+    title: fields.title?.['en-US'] || fields.title || '',
+    description: fields.description?.['en-US'] || fields.description || '',
+    displayOrder: fields.displayOrder?.['en-US'] || fields.displayOrder || 1,
+    filterType: fields.filterType?.['en-US'] || fields.filterType || 'featured',
+    filterValue: fields.filterValue?.['en-US'] || fields.filterValue || '',
+    maxItems: fields.maxItems?.['en-US'] || fields.maxItems || 3,
+    active: fields.active?.['en-US'] || fields.active || true
   };
 }
 
