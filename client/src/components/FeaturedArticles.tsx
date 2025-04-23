@@ -123,8 +123,9 @@ export default function FeaturedArticles() {
     
     switch (collection.filterType) {
       case 'featured':
-        // Get articles marked as featured
-        filteredArticles = allArticles.filter(article => article.tags.includes('featured'));
+        // If we're using the featured filter, just use the articles from the featured endpoint
+        // as fallback if no article has the 'featured' tag
+        filteredArticles = featuredArticles || allArticles;
         break;
       case 'category':
         // Filter by category ID
@@ -134,6 +135,9 @@ export default function FeaturedArticles() {
         // Filter by tag
         filteredArticles = allArticles.filter(article => article.tags.includes(collection.filterValue));
         break;
+      default:
+        // Use all articles as fallback
+        filteredArticles = allArticles;
     }
     
     // Return limited number of articles
