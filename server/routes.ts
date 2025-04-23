@@ -17,7 +17,8 @@ import {
   getAboutContent,
   getTeamMembers,
   getSiteStats,
-  getHeroSection
+  getHeroSection,
+  getFeaturedCollections
 } from "./contentful";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -161,6 +162,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching site stats:", error);
       res.status(500).json({ message: "Failed to fetch site stats" });
+    }
+  });
+  
+  app.get("/api/featured-collections", async (req, res) => {
+    try {
+      const collections = await getFeaturedCollections();
+      res.json(collections);
+    } catch (error) {
+      console.error("Error fetching featured collections:", error);
+      res.status(500).json({ message: "Failed to fetch featured collections" });
     }
   });
 
