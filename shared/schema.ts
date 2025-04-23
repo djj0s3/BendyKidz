@@ -134,3 +134,14 @@ export interface SiteStats {
   specialists: number;
   activityTypes: number;
 }
+
+export interface FeaturedCollection {
+  id: string;
+  title: string;
+  description: string;
+  displayOrder: number;
+  filterType: 'category' | 'tag' | 'featured';
+  filterValue: string;
+  maxItems: number;
+  active: boolean;
+}
