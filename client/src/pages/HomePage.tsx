@@ -1,6 +1,6 @@
 import HeroSection from "@/components/HeroSection";
 import FeaturedArticles from "@/components/FeaturedArticles";
-import NewsletterSignup from "@/components/NewsletterSignup";
+import TestimonialSlider from "@/components/TestimonialSlider";
 import AboutSection from "@/components/AboutSection";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
@@ -17,6 +17,7 @@ export default function HomePage() {
     <>
       <HeroSection />
       <FeaturedArticles />
+      <TestimonialSlider />
       
       {/* Resource Categories */}
       <section className="py-16 bg-white">
@@ -36,7 +37,6 @@ export default function HomePage() {
         </div>
       </section>
       
-      <NewsletterSignup />
       <AboutSection />
     </>
   );
