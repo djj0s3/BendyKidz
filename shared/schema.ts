@@ -89,6 +89,11 @@ export interface RelatedArticle {
   featuredImage: string;
 }
 
+export interface TestimonialsSection {
+  title: string;
+  subtitle?: string;
+}
+
 export interface Testimonial {
   id: string;
   name: string;

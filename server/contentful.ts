@@ -1,4 +1,4 @@
-import { Article, Category, Testimonial, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection } from '@shared/schema';
+import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection } from '@shared/schema';
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID || '';
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN || '';
@@ -390,6 +390,31 @@ export async function getArticlesByCategory(categoryId: string): Promise<Article
 }
 
 // Get testimonials
+export async function getTestimonialsSection(): Promise<TestimonialsSection | null> {
+  try {
+    const response = await fetchFromContentful('entries', {
+      content_type: 'testimonialsSection',
+      limit: '1',
+      include: '0'
+    });
+
+    if (!response.items || response.items.length === 0) {
+      return {
+        title: "Every Child Can Thrive with the Right Support",
+        subtitle: ""
+      };
+    }
+
+    return transformContentfulTestimonialsSection(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching testimonials section:', error);
+    return {
+      title: "Every Child Can Thrive with the Right Support",
+      subtitle: ""
+    };
+  }
+}
+
 export async function getTestimonials(): Promise<Testimonial[]> {
   try {
     const response = await fetchFromContentful('/entries', {
@@ -707,6 +732,15 @@ function transformContentfulCategory(item: any): Category {
     name: fields.name || '',
     slug: fields.slug || '',
     description: fields.description || ''
+  };
+}
+
+function transformContentfulTestimonialsSection(item: any): TestimonialsSection {
+  const fields = item.fields;
+  
+  return {
+    title: fields.title?.['en-US'] || fields.title || "Every Child Can Thrive with the Right Support",
+    subtitle: fields.subtitle?.['en-US'] || fields.subtitle || ""
   };
 }
 
