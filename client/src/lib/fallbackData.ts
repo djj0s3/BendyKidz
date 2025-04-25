@@ -2,6 +2,7 @@ import {
   Article,
   Category,
   Testimonial,
+  TestimonialsSection,
   AboutContent,
   TeamMember,
   SiteStats,
@@ -301,6 +302,11 @@ export const fallbackFeaturedArticles: Article[] = [
   fallbackArticles[2],
   fallbackArticles[5]
 ];
+
+export const fallbackTestimonialsSection: TestimonialsSection = {
+  title: "Every Child Can Thrive with the Right Support",
+  subtitle: ""
+};
 
 export const fallbackTestimonials: Testimonial[] = [
   {

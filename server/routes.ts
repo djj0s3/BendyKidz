@@ -14,6 +14,7 @@ import {
   getCategoryBySlug,
   getArticlesByCategory,
   getTestimonials,
+  getTestimonialsSection,
   getAboutContent,
   getTeamMembers,
   getSiteStats,
@@ -122,6 +123,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching testimonials:", error);
       res.status(500).json({ message: "Failed to fetch testimonials" });
+    }
+  });
+  
+  app.get("/api/testimonials-section", async (req, res) => {
+    try {
+      const testimonialSection = await getTestimonialsSection();
+      res.json(testimonialSection);
+    } catch (error) {
+      console.error("Error fetching testimonials section:", error);
+      res.status(500).json({ message: "Failed to fetch testimonials section" });
     }
   });
 

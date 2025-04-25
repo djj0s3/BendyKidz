@@ -1,4 +1,4 @@
-import { Article, Category, Testimonial, AboutContent, TeamMember, SiteStats, RelatedArticle } from '@shared/schema';
+import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle } from '@shared/schema';
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID || import.meta.env.VITE_CONTENTFUL_SPACE_ID;
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN || import.meta.env.VITE_CONTENTFUL_ACCESS_TOKEN;
@@ -32,7 +32,7 @@ async function fetchFromContentful(endpoint: string, params: Record<string, stri
 export async function getArticles(): Promise<Article[]> {
   const response = await fetchFromContentful('/entries', {
     content_type: 'article',
-    include: 2, // Include 2 levels of linked entries (for authors and categories)
+    include: '2', // Include 2 levels of linked entries (for authors and categories)
     order: '-sys.createdAt' // Sort by newest first
   });
   
@@ -116,6 +116,25 @@ export async function getArticlesByCategory(categoryId: string): Promise<Article
   });
   
   return response.items.map(transformContentfulArticle);
+}
+
+// Get testimonials section
+export async function getTestimonialsSection(): Promise<TestimonialsSection | null> {
+  try {
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'testimonialsSection',
+      limit: '1'
+    });
+    
+    if (response.items.length === 0) {
+      return null;
+    }
+    
+    return transformContentfulTestimonialsSection(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching testimonials section:', error);
+    return null;
+  }
 }
 
 // Get testimonials
@@ -263,6 +282,15 @@ function transformContentfulSiteStats(item: any): SiteStats {
     resources: fields.resources || 0,
     specialists: fields.specialists || 0,
     activityTypes: fields.activityTypes || 0
+  };
+}
+
+function transformContentfulTestimonialsSection(item: any): TestimonialsSection {
+  const fields = item.fields;
+  
+  return {
+    title: fields.title || "Every Child Can Thrive with the Right Support",
+    subtitle: fields.subtitle || ""
   };
 }
 
