@@ -187,9 +187,6 @@ export default function FeaturedArticles() {
             View All Resources
           </Link>
         </div>
-        
-        {/* Visual separator */}
-        <div className="mt-16 border-b border-gray-200"></div>
       </div>
     </section>
   );
