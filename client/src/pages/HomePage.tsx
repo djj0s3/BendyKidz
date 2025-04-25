@@ -1,6 +1,5 @@
 import HeroSection from "@/components/HeroSection";
 import FeaturedArticles from "@/components/FeaturedArticles";
-import TestimonialSlider from "@/components/TestimonialSlider";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import AboutSection from "@/components/AboutSection";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +17,6 @@ export default function HomePage() {
     <>
       <HeroSection />
       <FeaturedArticles />
-      <TestimonialSlider />
       
       {/* Resource Categories */}
       <section className="py-16 bg-white">
