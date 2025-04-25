@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Testimonial } from "@shared/schema";
+import { Testimonial, TestimonialsSection } from "@shared/schema";
+import { fallbackTestimonialsSection } from "@/lib/fallbackData";
 
 export default function TestimonialSlider() {
   const [activeIndex, setActiveIndex] = useState(0);
   
-  const { data: testimonials, isLoading, error } = useQuery<Testimonial[]>({
+  const { data: testimonials, isLoading: testimonialsLoading } = useQuery<Testimonial[]>({
     queryKey: ['/api/testimonials'],
   });
+  
+  const { data: sectionData, isLoading: sectionLoading } = useQuery<TestimonialsSection>({
+    queryKey: ['/api/testimonials-section'],
+  });
+  
+  const isLoading = testimonialsLoading || sectionLoading;
 
   // Auto-rotate testimonials
   useEffect(() => {
@@ -37,14 +44,21 @@ export default function TestimonialSlider() {
   const displayTestimonial = testimonials && testimonials.length > 0 
     ? testimonials[activeIndex] 
     : defaultTestimonial;
+    
+  // Use section title from Contentful or fallback
+  const sectionTitle = sectionData?.title || fallbackTestimonialsSection.title;
+  const sectionSubtitle = sectionData?.subtitle || fallbackTestimonialsSection.subtitle;
 
   return (
     <section className="py-16 bg-neutral-light">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold font-heading mb-10">
-            Every Child Can Thrive with the Right Support
+            {sectionTitle}
           </h2>
+          {sectionSubtitle && (
+            <p className="text-lg text-gray-600 mb-8">{sectionSubtitle}</p>
+          )}
           
           {isLoading ? (
             <div className="animate-pulse flex flex-col items-center">

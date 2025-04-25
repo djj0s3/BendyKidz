@@ -45,7 +45,7 @@ export async function getFeaturedArticles(): Promise<Article[]> {
   const response = await fetchFromContentful('/entries', {
     content_type: 'article',
     'fields.featured': 'true',
-    include: 2,
+    include: '2',
     order: '-sys.createdAt'
   });
   
@@ -57,7 +57,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const response = await fetchFromContentful('/entries', {
     content_type: 'article',
     'fields.slug': slug,
-    include: 2
+    include: '2'
   });
   
   if (response.items.length === 0) {
@@ -72,8 +72,8 @@ export async function getRelatedArticles(articleId: string, categoryId: string):
   const response = await fetchFromContentful('/entries', {
     content_type: 'article',
     'fields.category.sys.id': categoryId,
-    include: 1,
-    limit: 3
+    include: '1',
+    limit: '3'
   });
   
   // Filter out the current article and transform
@@ -111,7 +111,7 @@ export async function getArticlesByCategory(categoryId: string): Promise<Article
   const response = await fetchFromContentful('/entries', {
     content_type: 'article',
     'fields.category.sys.id': categoryId,
-    include: 2,
+    include: '2',
     order: '-sys.createdAt'
   });
   
@@ -151,7 +151,7 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 export async function getAboutContent(): Promise<AboutContent | null> {
   const response = await fetchFromContentful('/entries', {
     content_type: 'aboutPage',
-    include: 1
+    include: '1'
   });
   
   if (response.items.length === 0) {
@@ -208,7 +208,8 @@ function transformContentfulArticle(item: any): Article {
     category: {
       id: categoryEntry?.sys?.id || '',
       name: categoryEntry?.fields?.name || 'Uncategorized',
-      slug: categoryEntry?.fields?.slug || 'uncategorized'
+      slug: categoryEntry?.fields?.slug || 'uncategorized',
+      description: categoryEntry?.fields?.description || ''
     },
     tags: fields.tags || []
   };
