@@ -15,7 +15,7 @@ export default function Footer() {
   return (
     <footer className="bg-neutral-dark text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-6">
               <div className="text-white">
@@ -110,37 +110,6 @@ export default function Footer() {
                   <li><Link href="#" className="text-gray-400 hover:text-white transition-colors">Daily Living Skills</Link></li>
                 </>
               )}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold font-heading mb-4">
-              {footerData?.contactInfo?.title || 'Contact Us'}
-            </h3>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <i className="fas fa-map-marker-alt mt-1 mr-3 text-secondary"></i>
-                <span className="text-gray-400">
-                  {footerData?.contactInfo?.address.split('\n').map((line, i) => (
-                    <span key={i}>
-                      {line}
-                      {i < footerData.contactInfo.address.split('\n').length - 1 && <br />}
-                    </span>
-                  )) || '123 Therapy Lane\nWellness City, WC 12345'}
-                </span>
-              </li>
-              <li className="flex items-center">
-                <i className="fas fa-phone mr-3 text-secondary"></i>
-                <span className="text-gray-400">
-                  {footerData?.contactInfo?.phone || '(555) 123-4567'}
-                </span>
-              </li>
-              <li className="flex items-center">
-                <i className="fas fa-envelope mr-3 text-secondary"></i>
-                <span className="text-gray-400">
-                  {footerData?.contactInfo?.email || 'info@bendykidz.com'}
-                </span>
-              </li>
             </ul>
           </div>
         </div>
