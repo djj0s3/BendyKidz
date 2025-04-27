@@ -201,3 +201,16 @@ export interface Footer {
   copyrightText: string;
   policies: PolicyLink[];
 }
+
+export interface ContactPageInfo {
+  title: string;
+  subtitle: string;
+  officeLocation: string;
+  phoneNumber: string;
+  email: string;
+  officeHours: string;
+  messageFormTitle: string;
+  socialLinks: SocialLink[];
+  mapTitle: string;
+  mapEmbedUrl: string;
+}

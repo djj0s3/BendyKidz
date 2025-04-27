@@ -1,4 +1,4 @@
-import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection, Header, Footer } from '@shared/schema';
+import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection, Header, Footer, ContactPageInfo } from '@shared/schema';
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID || '';
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN || '';
