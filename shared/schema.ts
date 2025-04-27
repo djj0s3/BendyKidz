@@ -210,7 +210,10 @@ export interface ContactPageInfo {
   email: string;
   officeHours: string;
   messageFormTitle: string;
-  socialLinks: SocialLink[];
+  socialFacebook: string;
+  socialTwitter: string;
+  socialInstagram: string;
+  socialPinterest: string;
   mapTitle: string;
   mapEmbedUrl: string;
 }

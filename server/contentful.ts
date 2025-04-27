@@ -1285,12 +1285,10 @@ export async function getContactPageInfo(): Promise<ContactPageInfo | null> {
       email: 'info@bendykidz.com',
       officeHours: 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM',
       messageFormTitle: 'Send Us a Message',
-      socialLinks: [
-        { platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
-        { platform: 'Twitter', url: 'https://twitter.com', icon: 'twitter' },
-        { platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
-        { platform: 'Pinterest', url: 'https://pinterest.com', icon: 'pinterest' }
-      ],
+      socialFacebook: 'https://facebook.com/bendykidz',
+      socialTwitter: 'https://twitter.com/bendykidz',
+      socialInstagram: 'https://instagram.com/bendykidz',
+      socialPinterest: 'https://pinterest.com/bendykidz',
       mapTitle: 'Find Us',
       mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk'
     };
@@ -1306,12 +1304,10 @@ export async function getContactPageInfo(): Promise<ContactPageInfo | null> {
       email: 'info@bendykidz.com',
       officeHours: 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM',
       messageFormTitle: 'Send Us a Message',
-      socialLinks: [
-        { platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
-        { platform: 'Twitter', url: 'https://twitter.com', icon: 'twitter' },
-        { platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
-        { platform: 'Pinterest', url: 'https://pinterest.com', icon: 'pinterest' }
-      ],
+      socialFacebook: 'https://facebook.com/bendykidz',
+      socialTwitter: 'https://twitter.com/bendykidz',
+      socialInstagram: 'https://instagram.com/bendykidz',
+      socialPinterest: 'https://pinterest.com/bendykidz',
       mapTitle: 'Find Us',
       mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk'
     };
@@ -1330,12 +1326,10 @@ function transformContentfulContactInfo(item: any): ContactPageInfo {
     email: fields.email?.['en-US'] || fields.email || 'info@bendykidz.com',
     officeHours: fields.officeHours?.['en-US'] || fields.officeHours || 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM',
     messageFormTitle: fields.messageFormTitle?.['en-US'] || fields.messageFormTitle || 'Send Us a Message',
-    socialLinks: fields.socialLinks?.['en-US'] || fields.socialLinks || [
-      { platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
-      { platform: 'Twitter', url: 'https://twitter.com', icon: 'twitter' },
-      { platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
-      { platform: 'Pinterest', url: 'https://pinterest.com', icon: 'pinterest' }
-    ],
+    socialFacebook: fields.socialFacebook?.['en-US'] || fields.socialFacebook || 'https://facebook.com/bendykidz',
+    socialTwitter: fields.socialTwitter?.['en-US'] || fields.socialTwitter || 'https://twitter.com/bendykidz',
+    socialInstagram: fields.socialInstagram?.['en-US'] || fields.socialInstagram || 'https://instagram.com/bendykidz',
+    socialPinterest: fields.socialPinterest?.['en-US'] || fields.socialPinterest || 'https://pinterest.com/bendykidz',
     mapTitle: fields.mapTitle?.['en-US'] || fields.mapTitle || 'Find Us',
     mapEmbedUrl: fields.mapEmbedUrl?.['en-US'] || fields.mapEmbedUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk'
   };

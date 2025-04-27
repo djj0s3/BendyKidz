@@ -94,21 +94,17 @@ async function setupContactContent() {
         messageFormTitle: {
           'en-US': 'Send Us a Message'
         },
-        socialLinks: {
-          'en-US': [
-            {
-              "social": "Facebook|https://facebook.com/bendykidz"
-            },
-            {
-              "social": "Twitter|https://twitter.com/bendykidz"
-            },
-            {
-              "social": "Instagram|https://instagram.com/bendykidz"
-            },
-            {
-              "social": "Pinterest|https://pinterest.com/bendykidz"
-            }
-          ]
+        socialFacebook: {
+          'en-US': 'https://facebook.com/bendykidz'
+        },
+        socialTwitter: {
+          'en-US': 'https://twitter.com/bendykidz'
+        },
+        socialInstagram: {
+          'en-US': 'https://instagram.com/bendykidz'
+        },
+        socialPinterest: {
+          'en-US': 'https://pinterest.com/bendykidz'
         },
         mapTitle: {
           'en-US': 'Find Us'
