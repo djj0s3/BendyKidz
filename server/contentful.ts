@@ -533,11 +533,22 @@ export async function getFeaturedCollections(): Promise<FeaturedCollection[]> {
 export async function getHeader(): Promise<Header> {
   try {
     console.log('Fetching header content from Contentful...');
-    const response = await fetchFromContentful('/entries', {
+    // First try the original header content type
+    let response = await fetchFromContentful('/entries', {
       content_type: 'header',
       limit: '1',
       include: '0'
     });
+
+    // If not found, try the simple header content type
+    if (!response?.items?.length) {
+      console.log('No header found with content_type=header, trying simpleHeader...');
+      response = await fetchFromContentful('/entries', {
+        content_type: 'simpleHeader',
+        limit: '1',
+        include: '0'
+      });
+    }
 
     if (!response?.items?.length) {
       console.log('No header found in Contentful, using default header');
@@ -576,11 +587,22 @@ export async function getHeader(): Promise<Header> {
 export async function getFooter(): Promise<Footer> {
   try {
     console.log('Fetching footer content from Contentful...');
-    const response = await fetchFromContentful('/entries', {
+    // First try the original footer content type
+    let response = await fetchFromContentful('/entries', {
       content_type: 'footer',
       limit: '1',
       include: '0'
     });
+
+    // If not found, try the simple footer content type
+    if (!response?.items?.length) {
+      console.log('No footer found with content_type=footer, trying simpleFooter...');
+      response = await fetchFromContentful('/entries', {
+        content_type: 'simpleFooter',
+        limit: '1',
+        include: '0'
+      });
+    }
 
     if (!response?.items?.length) {
       console.log('No footer found in Contentful, using default footer');
