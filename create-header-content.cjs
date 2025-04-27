@@ -60,7 +60,10 @@ async function createHeaderContentType() {
         {
           id: 'navigationItems',
           name: 'Navigation Items',
-          type: 'Object',
+          type: 'Array',
+          items: {
+            type: 'Symbol'
+          },
           required: true,
           localized: false
         },
@@ -114,14 +117,12 @@ async function createHeaderEntry(contentType) {
           'en-US': ''  // Leave empty for now
         },
         navigationItems: {
-          'en-US': {
-            items: [
-              { label: 'Home', url: '/', order: 1 },
-              { label: 'Resources', url: '/articles', order: 2 },
-              { label: 'About', url: '/about', order: 3 },
-              { label: 'Contact', url: '/contact', order: 4 }
-            ]
-          }
+          'en-US': [
+            'Home|/|1',
+            'Resources|/articles|2',
+            'About|/about|3',
+            'Contact|/contact|4'
+          ]
         },
         searchPlaceholder: {
           'en-US': 'Search resources and articles...'

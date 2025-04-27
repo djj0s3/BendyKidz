@@ -60,7 +60,10 @@ async function createFooterContentType() {
         {
           id: 'socialLinks',
           name: 'Social Links',
-          type: 'Object',
+          type: 'Array',
+          items: {
+            type: 'Symbol'
+          },
           required: false,
           localized: false
         },
@@ -88,7 +91,10 @@ async function createFooterContentType() {
         {
           id: 'policies',
           name: 'Policy Links',
-          type: 'Object',
+          type: 'Array',
+          items: {
+            type: 'Symbol'
+          },
           required: false,
           localized: false
         }
@@ -135,14 +141,12 @@ async function createFooterEntry(contentType) {
           'en-US': 'Expert occupational therapy resources for parents to support their children\'s development through play-based activities.'
         },
         socialLinks: {
-          'en-US': {
-            items: [
-              { platform: 'facebook', url: '#', icon: 'fab fa-facebook-f' },
-              { platform: 'instagram', url: '#', icon: 'fab fa-instagram' },
-              { platform: 'pinterest', url: '#', icon: 'fab fa-pinterest' },
-              { platform: 'youtube', url: '#', icon: 'fab fa-youtube' }
-            ]
-          }
+          'en-US': [
+            { platform: 'facebook', url: '#', icon: 'fab fa-facebook-f' },
+            { platform: 'instagram', url: '#', icon: 'fab fa-instagram' },
+            { platform: 'pinterest', url: '#', icon: 'fab fa-pinterest' },
+            { platform: 'youtube', url: '#', icon: 'fab fa-youtube' }
+          ]
         },
         quickLinks: {
           'en-US': {
@@ -168,13 +172,11 @@ async function createFooterEntry(contentType) {
           'en-US': '© {year} BendyKidz. All rights reserved.'
         },
         policies: {
-          'en-US': {
-            items: [
-              { label: 'Privacy Policy', url: '#' },
-              { label: 'Terms of Service', url: '#' },
-              { label: 'Cookie Policy', url: '#' }
-            ]
-          }
+          'en-US': [
+            { label: 'Privacy Policy', url: '#' },
+            { label: 'Terms of Service', url: '#' },
+            { label: 'Cookie Policy', url: '#' }
+          ]
         }
       }
     });
