@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { ContactPageInfo } from "@shared/schema";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -18,6 +20,11 @@ type ContactFormData = z.infer<typeof contactSchema>;
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
+  
+  // Fetch contact page content from Contentful
+  const { data: contactInfo, isLoading } = useQuery<ContactPageInfo>({
+    queryKey: ['/api/contact-info'],
+  });
   
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema)
@@ -53,9 +60,11 @@ export default function ContactPage() {
       {/* Contact Hero */}
       <section className="bg-gradient-to-br from-primary to-secondary text-white py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold font-heading mb-4">Contact Us</h1>
+          <h1 className="text-3xl md:text-4xl font-bold font-heading mb-4">
+            {isLoading ? <Skeleton className="h-10 w-48 mx-auto bg-white/20" /> : contactInfo?.title || "Contact Us"}
+          </h1>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Have questions about occupational therapy for your child? We're here to help.
+            {isLoading ? <Skeleton className="h-6 w-full max-w-2xl mx-auto bg-white/20" /> : contactInfo?.subtitle || "Have questions about occupational therapy for your child? We're here to help."}
           </p>
         </div>
       </section>
@@ -77,7 +86,13 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold font-heading mb-1">Office Location</h3>
-                    <p className="text-gray-600">123 Therapy Lane<br />Wellness City, WC 12345</p>
+                    {isLoading ? (
+                      <Skeleton className="h-10 w-full" />
+                    ) : (
+                      <p className="text-gray-600" style={{ whiteSpace: 'pre-line' }}>
+                        {contactInfo?.officeLocation || "123 Therapy Lane\nWellness City, WC 12345"}
+                      </p>
+                    )}
                   </div>
                 </div>
                 
@@ -87,7 +102,11 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold font-heading mb-1">Phone Number</h3>
-                    <p className="text-gray-600">(555) 123-4567</p>
+                    {isLoading ? (
+                      <Skeleton className="h-5 w-32" />
+                    ) : (
+                      <p className="text-gray-600">{contactInfo?.phoneNumber || "(555) 123-4567"}</p>
+                    )}
                   </div>
                 </div>
                 
@@ -97,7 +116,11 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold font-heading mb-1">Email Address</h3>
-                    <p className="text-gray-600">info@bendykidz.com</p>
+                    {isLoading ? (
+                      <Skeleton className="h-5 w-40" />
+                    ) : (
+                      <p className="text-gray-600">{contactInfo?.email || "info@bendykidz.com"}</p>
+                    )}
                   </div>
                 </div>
                 
@@ -107,7 +130,13 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold font-heading mb-1">Office Hours</h3>
-                    <p className="text-gray-600">Monday - Friday: 9:00 AM - 5:00 PM<br />Saturday: 10:00 AM - 2:00 PM</p>
+                    {isLoading ? (
+                      <Skeleton className="h-10 w-full" />
+                    ) : (
+                      <p className="text-gray-600" style={{ whiteSpace: 'pre-line' }}>
+                        {contactInfo?.officeHours || "Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM"}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -115,25 +144,49 @@ export default function ContactPage() {
               <div className="mt-8">
                 <h3 className="font-bold font-heading mb-4">Connect With Us</h3>
                 <div className="flex space-x-4">
-                  <a href="#" className="w-10 h-10 rounded-full bg-[#3b5998] text-white flex items-center justify-center hover:opacity-90 transition-opacity">
-                    <i className="fab fa-facebook-f"></i>
-                  </a>
-                  <a href="#" className="w-10 h-10 rounded-full bg-[#1da1f2] text-white flex items-center justify-center hover:opacity-90 transition-opacity">
-                    <i className="fab fa-twitter"></i>
-                  </a>
-                  <a href="#" className="w-10 h-10 rounded-full bg-[#c32aa3] text-white flex items-center justify-center hover:opacity-90 transition-opacity">
-                    <i className="fab fa-instagram"></i>
-                  </a>
-                  <a href="#" className="w-10 h-10 rounded-full bg-[#bd081c] text-white flex items-center justify-center hover:opacity-90 transition-opacity">
-                    <i className="fab fa-pinterest"></i>
-                  </a>
+                  {isLoading ? (
+                    <>
+                      <Skeleton className="w-10 h-10 rounded-full" />
+                      <Skeleton className="w-10 h-10 rounded-full" />
+                      <Skeleton className="w-10 h-10 rounded-full" />
+                      <Skeleton className="w-10 h-10 rounded-full" />
+                    </>
+                  ) : (
+                    (contactInfo?.socialLinks || [
+                      { platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
+                      { platform: 'Twitter', url: 'https://twitter.com', icon: 'twitter' },
+                      { platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
+                      { platform: 'Pinterest', url: 'https://pinterest.com', icon: 'pinterest' }
+                    ]).map((social, index) => (
+                      <a 
+                        key={index}
+                        href={social.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className={`w-10 h-10 rounded-full text-white flex items-center justify-center hover:opacity-90 transition-opacity ${
+                          social.platform.toLowerCase() === 'facebook' ? 'bg-[#3b5998]' :
+                          social.platform.toLowerCase() === 'twitter' ? 'bg-[#1da1f2]' : 
+                          social.platform.toLowerCase() === 'instagram' ? 'bg-[#c32aa3]' : 
+                          social.platform.toLowerCase() === 'pinterest' ? 'bg-[#bd081c]' : 'bg-primary'
+                        }`}
+                      >
+                        <i className={`fab fa-${social.platform.toLowerCase()}`}></i>
+                      </a>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
             
             <div className="lg:w-3/5">
               <div className="bg-neutral-light p-8 rounded-lg">
-                <h2 className="text-2xl font-bold font-heading mb-6">Send Us a Message</h2>
+                <h2 className="text-2xl font-bold font-heading mb-6">
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-48" />
+                  ) : (
+                    contactInfo?.messageFormTitle || "Send Us a Message"
+                  )}
+                </h2>
                 
                 {submitted ? (
                   <div className="text-center py-12">
@@ -235,18 +288,24 @@ export default function ContactPage() {
       <section className="py-16 bg-neutral-light">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl font-bold font-heading mb-8 text-center">Find Us</h2>
+            <h2 className="text-2xl font-bold font-heading mb-8 text-center">
+              {isLoading ? <Skeleton className="h-8 w-32 mx-auto" /> : contactInfo?.mapTitle || "Find Us"}
+            </h2>
             <div className="bg-white p-2 rounded-lg shadow-md">
               <div className="aspect-[16/9] w-full rounded-lg overflow-hidden">
-                <iframe 
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk" 
-                  width="100%" 
-                  height="100%" 
-                  style={{border: 0}} 
-                  allowFullScreen={true} 
-                  loading="lazy"
-                  title="Google Maps"
-                ></iframe>
+                {isLoading ? (
+                  <Skeleton className="w-full h-full" />
+                ) : (
+                  <iframe 
+                    src={contactInfo?.mapEmbedUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk"}
+                    width="100%" 
+                    height="100%" 
+                    style={{border: 0}} 
+                    allowFullScreen={true} 
+                    loading="lazy"
+                    title="Google Maps"
+                  ></iframe>
+                )}
               </div>
             </div>
           </div>

@@ -21,7 +21,8 @@ import {
   getHeroSection,
   getFeaturedCollections,
   getHeader,
-  getFooter
+  getFooter,
+  getContactPageInfo
 } from "./contentful";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -205,6 +206,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching footer content:", error);
       res.status(500).json({ message: "Failed to fetch footer content" });
+    }
+  });
+  
+  app.get("/api/contact-info", async (req, res) => {
+    try {
+      const contactInfo = await getContactPageInfo();
+      res.json(contactInfo);
+    } catch (error) {
+      console.error("Error fetching contact page content:", error);
+      res.status(500).json({ message: "Failed to fetch contact page content" });
     }
   });
 
