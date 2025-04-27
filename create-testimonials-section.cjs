@@ -64,35 +64,35 @@ async function createTestimonialsSection() {
       console.log('TestimonialsSection content type created and published.');
     }
 
-    // Check if entry already exists
-    let entry;
-    const entries = await environment.getEntries({
-      content_type: 'testimonialsSection',
-      limit: 1
-    });
-
-    if (entries.items.length > 0) {
-      console.log('TestimonialsSection entry already exists.');
-      entry = entries.items[0];
-    } else {
-      // Create the entry if it doesn't exist
-      entry = await environment.createEntry('testimonialsSection', {
-        fields: {
-          title: {
-            'en-US': 'Every Child Can Thrive with the Right Support'
-          },
-          subtitle: {
-            'en-US': 'See what parents and educators are saying about our resources'
+    // Create an entry after a brief delay (to ensure content type is fully processed)
+    console.log('Creating TestimonialsSection entry...');
+    
+    setTimeout(async () => {
+      try {
+        // Get the latest environment to ensure we're using the updated content type
+        const updatedEnvironment = await space.getEnvironment('master');
+        
+        // Create the entry
+        const entry = await updatedEnvironment.createEntry('testimonialsSection', {
+          fields: {
+            title: {
+              'en-US': 'Every Child Can Thrive with the Right Support'
+            },
+            subtitle: {
+              'en-US': 'See what parents and educators are saying about our resources'
+            }
           }
-        }
-      });
+        });
 
-      // Publish the entry
-      await entry.publish();
-      console.log('TestimonialsSection entry created and published.');
-    }
-
-    console.log('Testimonials Section setup complete!');
+        // Publish the entry
+        await entry.publish();
+        console.log('TestimonialsSection entry created and published.');
+        console.log('Testimonials Section setup complete!');
+      } catch (entryError) {
+        console.error('Error creating entry:', entryError);
+      }
+    }, 5000); // 5 second delay
+    
   } catch (error) {
     console.error('Error setting up Testimonials Section:', error);
     process.exit(1);
