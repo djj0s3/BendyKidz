@@ -1,59 +1,12 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
 import { ContactPageInfo } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const contactSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Please enter a valid email address"),
-  subject: z.string().min(2, "Subject is required"),
-  message: z.string().min(10, "Message must be at least 10 characters")
-});
-
-type ContactFormData = z.infer<typeof contactSchema>;
-
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const { toast } = useToast();
-  
   // Fetch contact page content from Contentful
   const { data: contactInfo, isLoading } = useQuery<ContactPageInfo>({
     queryKey: ['/api/contact-info'],
   });
-  
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema)
-  });
-
-  const contactMutation = useMutation({
-    mutationFn: (data: ContactFormData) => 
-      apiRequest('POST', '/api/contact', data),
-    onSuccess: () => {
-      toast({
-        title: "Message Sent!",
-        description: "Thank you for contacting us. We'll get back to you soon.",
-        variant: "default",
-      });
-      reset();
-      setSubmitted(true);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const onSubmit = (data: ContactFormData) => {
-    contactMutation.mutate(data);
-  };
 
   return (
     <>
@@ -78,8 +31,8 @@ export default function ContactPage() {
       {/* Contact Form & Info */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-12">
-            <div className="lg:w-2/5">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-neutral-light p-8 rounded-lg">
               <h2 className="text-2xl font-bold font-heading mb-6 text-primary">Get In Touch</h2>
               <p className="text-gray-600 mb-8">
                 Our team of pediatric occupational therapists is ready to answer your questions and provide guidance for your child's development journey.
@@ -214,109 +167,6 @@ export default function ContactPage() {
                   </div>
                 </div>
               )}
-            </div>
-            
-            <div className="lg:w-3/5">
-              <div className="bg-neutral-light p-8 rounded-lg">
-                <h2 className="text-2xl font-bold font-heading mb-6">
-                  {isLoading ? (
-                    <Skeleton className="h-8 w-48" />
-                  ) : (
-                    contactInfo?.messageFormTitle && contactInfo.messageFormTitle
-                  ) || "Send Us a Message"}
-                </h2>
-                
-                {submitted ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <i className="fas fa-check-circle text-3xl"></i>
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">Message Sent Successfully!</h3>
-                    <p className="text-gray-600 mb-6">Thank you for contacting us. One of our team members will get back to you soon.</p>
-                    <button 
-                      onClick={() => setSubmitted(false)}
-                      className="btn-primary"
-                    >
-                      Send Another Message
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <div>
-                        <label htmlFor="name" className="block text-gray-700 font-medium mb-2">Your Name</label>
-                        <input 
-                          type="text" 
-                          id="name"
-                          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
-                          placeholder="John Smith"
-                          {...register('name')}
-                          disabled={contactMutation.isPending}
-                        />
-                        {errors.name && (
-                          <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Email Address</label>
-                        <input 
-                          type="email" 
-                          id="email"
-                          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-                          placeholder="your@email.com"
-                          {...register('email')}
-                          disabled={contactMutation.isPending}
-                        />
-                        {errors.email && (
-                          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <label htmlFor="subject" className="block text-gray-700 font-medium mb-2">Subject</label>
-                      <input 
-                        type="text" 
-                        id="subject"
-                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.subject ? 'border-red-500' : 'border-gray-300'}`}
-                        placeholder="How can we help you?"
-                        {...register('subject')}
-                        disabled={contactMutation.isPending}
-                      />
-                      {errors.subject && (
-                        <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>
-                      )}
-                    </div>
-                    
-                    <div className="mb-6">
-                      <label htmlFor="message" className="block text-gray-700 font-medium mb-2">Message</label>
-                      <textarea 
-                        id="message"
-                        rows={5}
-                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.message ? 'border-red-500' : 'border-gray-300'}`}
-                        placeholder="Please describe how we can help..."
-                        {...register('message')}
-                        disabled={contactMutation.isPending}
-                      ></textarea>
-                      {errors.message && (
-                        <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
-                      )}
-                    </div>
-                    
-                    <button 
-                      type="submit" 
-                      className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-                      disabled={contactMutation.isPending}
-                    >
-                      {contactMutation.isPending ? (
-                        <span className="flex items-center justify-center">
-                          <i className="fas fa-spinner fa-spin mr-2"></i> Sending...
-                        </span>
-                      ) : 'Send Message'}
-                    </button>
-                  </form>
-                )}
-              </div>
             </div>
           </div>
         </div>
