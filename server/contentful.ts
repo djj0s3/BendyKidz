@@ -541,8 +541,8 @@ export async function getHeader(): Promise<Header> {
         limit: '1',
         include: '0'
       });
-    } catch (error) {
-      console.log('Error fetching header with content_type=header, trying simpleHeader...');
+    } catch (error: any) {
+      console.log('Error fetching header with content_type=header, trying simpleHeader...', error.message || 'Unknown error');
       response = { items: [] };
     }
 
@@ -555,8 +555,8 @@ export async function getHeader(): Promise<Header> {
           limit: '1',
           include: '0'
         });
-      } catch (error) {
-        console.log('Error fetching header with content_type=simpleHeader:', error.message);
+      } catch (error: any) {
+        console.log('Error fetching header with content_type=simpleHeader:', error.message || 'Unknown error');
         response = { items: [] };
       }
     }
@@ -578,7 +578,7 @@ export async function getHeader(): Promise<Header> {
 
     console.log('Found header in Contentful, transforming data');
     return transformContentfulHeader(response.items[0]);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching header content:', error);
     // Return default header if error
     return {
@@ -606,8 +606,8 @@ export async function getFooter(): Promise<Footer> {
         limit: '1',
         include: '0'
       });
-    } catch (error) {
-      console.log('Error fetching footer with content_type=footer, trying simpleFooter...');
+    } catch (error: any) {
+      console.log('Error fetching footer with content_type=footer, trying simpleFooter...', error.message || 'Unknown error');
       response = { items: [] };
     }
 
@@ -665,7 +665,7 @@ export async function getFooter(): Promise<Footer> {
 
     console.log('Found footer in Contentful, transforming data');
     return transformContentfulFooter(response.items[0]);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching footer content:', error);
     // Return default footer if error
     return {
