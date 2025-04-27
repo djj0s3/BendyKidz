@@ -1256,3 +1256,87 @@ function findLinkedAsset(response: any, assetId: string) {
   
   return asset;
 }
+
+// Get contact page information
+export async function getContactPageInfo(): Promise<ContactPageInfo | null> {
+  try {
+    console.log('Fetching contact page content from Contentful...');
+    let contactInfo = null;
+    
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'contactInfo',
+      limit: '1',
+      include: '1'
+    });
+    
+    if (response.items && response.items.length > 0) {
+      console.log('Found contact info in Contentful, transforming data');
+      contactInfo = transformContentfulContactInfo(response.items[0]);
+      return contactInfo;
+    }
+    
+    // Return fallback data if nothing was found
+    console.log('No contact info found in Contentful, using fallback data');
+    return {
+      title: 'Contact Us',
+      subtitle: 'Have questions about occupational therapy for your child? We\'re here to help.',
+      officeLocation: '123 Therapy Lane\nWellness City, WC 12345',
+      phoneNumber: '(555) 123-4567',
+      email: 'info@bendykidz.com',
+      officeHours: 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM',
+      messageFormTitle: 'Send Us a Message',
+      socialLinks: [
+        { platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
+        { platform: 'Twitter', url: 'https://twitter.com', icon: 'twitter' },
+        { platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
+        { platform: 'Pinterest', url: 'https://pinterest.com', icon: 'pinterest' }
+      ],
+      mapTitle: 'Find Us',
+      mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk'
+    };
+  } catch (error) {
+    console.error('Error fetching contact page content:', error);
+    
+    // Return fallback data on error
+    return {
+      title: 'Contact Us',
+      subtitle: 'Have questions about occupational therapy for your child? We\'re here to help.',
+      officeLocation: '123 Therapy Lane\nWellness City, WC 12345',
+      phoneNumber: '(555) 123-4567',
+      email: 'info@bendykidz.com',
+      officeHours: 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM',
+      messageFormTitle: 'Send Us a Message',
+      socialLinks: [
+        { platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
+        { platform: 'Twitter', url: 'https://twitter.com', icon: 'twitter' },
+        { platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
+        { platform: 'Pinterest', url: 'https://pinterest.com', icon: 'pinterest' }
+      ],
+      mapTitle: 'Find Us',
+      mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk'
+    };
+  }
+}
+
+// Transform Contentful contact info to our model
+function transformContentfulContactInfo(item: any): ContactPageInfo {
+  const fields = item.fields;
+  
+  return {
+    title: fields.title?.['en-US'] || fields.title || 'Contact Us',
+    subtitle: fields.subtitle?.['en-US'] || fields.subtitle || 'Have questions about occupational therapy for your child? We\'re here to help.',
+    officeLocation: fields.officeLocation?.['en-US'] || fields.officeLocation || '123 Therapy Lane\nWellness City, WC 12345',
+    phoneNumber: fields.phoneNumber?.['en-US'] || fields.phoneNumber || '(555) 123-4567',
+    email: fields.email?.['en-US'] || fields.email || 'info@bendykidz.com',
+    officeHours: fields.officeHours?.['en-US'] || fields.officeHours || 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM',
+    messageFormTitle: fields.messageFormTitle?.['en-US'] || fields.messageFormTitle || 'Send Us a Message',
+    socialLinks: fields.socialLinks?.['en-US'] || fields.socialLinks || [
+      { platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
+      { platform: 'Twitter', url: 'https://twitter.com', icon: 'twitter' },
+      { platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
+      { platform: 'Pinterest', url: 'https://pinterest.com', icon: 'pinterest' }
+    ],
+    mapTitle: fields.mapTitle?.['en-US'] || fields.mapTitle || 'Find Us',
+    mapEmbedUrl: fields.mapEmbedUrl?.['en-US'] || fields.mapEmbedUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk'
+  };
+}
