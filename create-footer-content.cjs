@@ -62,7 +62,8 @@ async function createFooterContentType() {
           name: 'Social Links',
           type: 'Array',
           items: {
-            type: 'Symbol'
+            type: 'Object',
+            validations: []
           },
           required: false,
           localized: false
@@ -93,7 +94,8 @@ async function createFooterContentType() {
           name: 'Policy Links',
           type: 'Array',
           items: {
-            type: 'Symbol'
+            type: 'Object',
+            validations: []
           },
           required: false,
           localized: false
