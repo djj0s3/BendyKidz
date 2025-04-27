@@ -1017,7 +1017,43 @@ function transformContentfulFeaturedCollection(item: any): FeaturedCollection {
 
 function transformContentfulHeader(item: any): Header {
   const fields = item.fields;
+  let contentType = item.sys.contentType?.sys?.id;
+  console.log(`Transforming header with content type: ${contentType}`);
   
+  // Handle simplified header content type
+  if (contentType === 'simpleHeader') {
+    const title = fields.title?.['en-US'] || fields.title || 'BendyKidz';
+    const searchPlaceholder = fields.searchPlaceholder?.['en-US'] || fields.searchPlaceholder || 'Search resources and articles...';
+    // Parse navigation items from JSON string
+    let navigationItems = [
+      { label: 'Home', url: '/', order: 1 },
+      { label: 'Resources', url: '/articles', order: 2 },
+      { label: 'About', url: '/about', order: 3 },
+      { label: 'Contact', url: '/contact', order: 4 }
+    ];
+    
+    try {
+      const navItemsJson = fields.navItems?.['en-US'] || fields.navItems;
+      if (navItemsJson) {
+        if (typeof navItemsJson === 'string') {
+          navigationItems = JSON.parse(navItemsJson);
+        } else if (Array.isArray(navItemsJson)) {
+          navigationItems = navItemsJson;
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing navigation items JSON:', error);
+    }
+    
+    return {
+      title,
+      logoUrl: '',
+      navigationItems,
+      searchPlaceholder
+    };
+  }
+  
+  // Handle regular header content type
   return {
     title: fields.title?.['en-US'] || fields.title || 'BendyKidz',
     logoUrl: fields.logoUrl?.['en-US'] || fields.logoUrl || '',
@@ -1033,7 +1069,96 @@ function transformContentfulHeader(item: any): Header {
 
 function transformContentfulFooter(item: any): Footer {
   const fields = item.fields;
+  let contentType = item.sys.contentType?.sys?.id;
+  console.log(`Transforming footer with content type: ${contentType}`);
   
+  // Handle simplified footer content type
+  if (contentType === 'simpleFooter') {
+    const title = fields.title?.['en-US'] || fields.title || 'BendyKidz';
+    const description = fields.description?.['en-US'] || fields.description || 'Expert occupational therapy resources for parents to support their children\'s development through play-based activities.';
+    const copyrightText = fields.copyrightText?.['en-US'] || fields.copyrightText || '© {year} BendyKidz. All rights reserved.';
+    
+    // Default values
+    let socialLinks = [
+      { platform: 'facebook', url: '#', icon: 'fab fa-facebook-f' },
+      { platform: 'instagram', url: '#', icon: 'fab fa-instagram' },
+      { platform: 'pinterest', url: '#', icon: 'fab fa-pinterest' },
+      { platform: 'youtube', url: '#', icon: 'fab fa-youtube' }
+    ];
+    
+    let quickLinks = {
+      title: 'Quick Links',
+      links: [
+        { label: 'Home', url: '/' },
+        { label: 'About Us', url: '/about' },
+        { label: 'Resources', url: '/articles' },
+        { label: 'Articles', url: '/articles' },
+        { label: 'Contact', url: '/contact' }
+      ]
+    };
+    
+    let contactInfo = {
+      title: 'Contact Us',
+      address: '123 Therapy Lane\nWellness City, WC 12345',
+      phone: '(555) 123-4567',
+      email: 'info@bendykidz.com'
+    };
+    
+    let policies = [
+      { label: 'Privacy Policy', url: '#' },
+      { label: 'Terms of Service', url: '#' },
+      { label: 'Cookie Policy', url: '#' }
+    ];
+    
+    // Parse JSON string fields
+    try {
+      const socialLinksJson = fields.socialLinksJson?.['en-US'] || fields.socialLinksJson;
+      if (socialLinksJson && typeof socialLinksJson === 'string') {
+        socialLinks = JSON.parse(socialLinksJson);
+      }
+    } catch (error) {
+      console.error('Error parsing socialLinksJson:', error);
+    }
+    
+    try {
+      const quickLinksJson = fields.quickLinksJson?.['en-US'] || fields.quickLinksJson;
+      if (quickLinksJson && typeof quickLinksJson === 'string') {
+        quickLinks = JSON.parse(quickLinksJson);
+      }
+    } catch (error) {
+      console.error('Error parsing quickLinksJson:', error);
+    }
+    
+    try {
+      const contactInfoJson = fields.contactInfoJson?.['en-US'] || fields.contactInfoJson;
+      if (contactInfoJson && typeof contactInfoJson === 'string') {
+        contactInfo = JSON.parse(contactInfoJson);
+      }
+    } catch (error) {
+      console.error('Error parsing contactInfoJson:', error);
+    }
+    
+    try {
+      const policiesJson = fields.policiesJson?.['en-US'] || fields.policiesJson;
+      if (policiesJson && typeof policiesJson === 'string') {
+        policies = JSON.parse(policiesJson);
+      }
+    } catch (error) {
+      console.error('Error parsing policiesJson:', error);
+    }
+    
+    return {
+      title,
+      description,
+      socialLinks,
+      quickLinks,
+      contactInfo,
+      copyrightText,
+      policies
+    };
+  }
+  
+  // Handle regular footer content type
   return {
     title: fields.title?.['en-US'] || fields.title || 'BendyKidz',
     description: fields.description?.['en-US'] || fields.description || 'Expert occupational therapy resources for parents to support their children\'s development through play-based activities.',
