@@ -57,17 +57,23 @@ export default function ContactPage() {
 
   return (
     <>
-      {/* Contact Hero */}
-      <section className="bg-gradient-to-br from-primary to-secondary text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold font-heading mb-4">
-            {isLoading ? <Skeleton className="h-10 w-48 mx-auto bg-white/20" /> : contactInfo?.title || "Contact Us"}
-          </h1>
-          <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            {isLoading ? <Skeleton className="h-6 w-full max-w-2xl mx-auto bg-white/20" /> : contactInfo?.subtitle || "Have questions about occupational therapy for your child? We're here to help."}
-          </p>
-        </div>
-      </section>
+      {/* Contact Hero - Only show if we have title or subtitle */}
+      {(isLoading || contactInfo?.title || contactInfo?.subtitle) && (
+        <section className="bg-gradient-to-br from-primary to-secondary text-white py-16">
+          <div className="container mx-auto px-4 text-center">
+            {(isLoading || contactInfo?.title) && (
+              <h1 className="text-3xl md:text-4xl font-bold font-heading mb-4">
+                {isLoading ? <Skeleton className="h-10 w-48 mx-auto bg-white/20" /> : contactInfo?.title}
+              </h1>
+            )}
+            {(isLoading || contactInfo?.subtitle) && (
+              <p className="text-xl opacity-90 max-w-2xl mx-auto">
+                {isLoading ? <Skeleton className="h-6 w-full max-w-2xl mx-auto bg-white/20" /> : contactInfo?.subtitle}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Contact Form & Info */}
       <section className="py-16 bg-white">
@@ -80,123 +86,134 @@ export default function ContactPage() {
               </p>
               
               <div className="space-y-6">
-                <div className="flex items-start">
-                  <div className="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
-                    <i className="fas fa-map-marker-alt text-primary"></i>
+                {(isLoading || contactInfo?.officeLocation) && (
+                  <div className="flex items-start">
+                    <div className="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
+                      <i className="fas fa-map-marker-alt text-primary"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-bold font-heading mb-1">Office Location</h3>
+                      {isLoading ? (
+                        <Skeleton className="h-10 w-full" />
+                      ) : (
+                        <p className="text-gray-600" style={{ whiteSpace: 'pre-line' }}>
+                          {contactInfo?.officeLocation}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold font-heading mb-1">Office Location</h3>
-                    {isLoading ? (
-                      <Skeleton className="h-10 w-full" />
-                    ) : (
-                      <p className="text-gray-600" style={{ whiteSpace: 'pre-line' }}>
-                        {contactInfo?.officeLocation || "123 Therapy Lane\nWellness City, WC 12345"}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                )}
                 
-                <div className="flex items-start">
-                  <div className="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
-                    <i className="fas fa-phone text-primary"></i>
+                {(isLoading || contactInfo?.phoneNumber) && (
+                  <div className="flex items-start">
+                    <div className="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
+                      <i className="fas fa-phone text-primary"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-bold font-heading mb-1">Phone Number</h3>
+                      {isLoading ? (
+                        <Skeleton className="h-5 w-32" />
+                      ) : (
+                        <p className="text-gray-600">{contactInfo?.phoneNumber}</p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold font-heading mb-1">Phone Number</h3>
-                    {isLoading ? (
-                      <Skeleton className="h-5 w-32" />
-                    ) : (
-                      <p className="text-gray-600">{contactInfo?.phoneNumber || "(555) 123-4567"}</p>
-                    )}
-                  </div>
-                </div>
+                )}
                 
-                <div className="flex items-start">
-                  <div className="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
-                    <i className="fas fa-envelope text-primary"></i>
+                {(isLoading || contactInfo?.email) && (
+                  <div className="flex items-start">
+                    <div className="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
+                      <i className="fas fa-envelope text-primary"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-bold font-heading mb-1">Email Address</h3>
+                      {isLoading ? (
+                        <Skeleton className="h-5 w-40" />
+                      ) : (
+                        <p className="text-gray-600">{contactInfo?.email}</p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold font-heading mb-1">Email Address</h3>
-                    {isLoading ? (
-                      <Skeleton className="h-5 w-40" />
-                    ) : (
-                      <p className="text-gray-600">{contactInfo?.email || "info@bendykidz.com"}</p>
-                    )}
-                  </div>
-                </div>
+                )}
                 
-                <div className="flex items-start">
-                  <div className="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
-                    <i className="fas fa-clock text-primary"></i>
+                {(isLoading || contactInfo?.officeHours) && (
+                  <div className="flex items-start">
+                    <div className="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
+                      <i className="fas fa-clock text-primary"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-bold font-heading mb-1">Office Hours</h3>
+                      {isLoading ? (
+                        <Skeleton className="h-10 w-full" />
+                      ) : (
+                        <p className="text-gray-600" style={{ whiteSpace: 'pre-line' }}>
+                          {contactInfo?.officeHours}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold font-heading mb-1">Office Hours</h3>
-                    {isLoading ? (
-                      <Skeleton className="h-10 w-full" />
-                    ) : (
-                      <p className="text-gray-600" style={{ whiteSpace: 'pre-line' }}>
-                        {contactInfo?.officeHours || "Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM"}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                )}
               </div>
               
-              <div className="mt-8">
-                <h3 className="font-bold font-heading mb-4">Connect With Us</h3>
-                <div className="flex space-x-4">
-                  {isLoading ? (
-                    <>
-                      <Skeleton className="w-10 h-10 rounded-full" />
-                      <Skeleton className="w-10 h-10 rounded-full" />
-                      <Skeleton className="w-10 h-10 rounded-full" />
-                      <Skeleton className="w-10 h-10 rounded-full" />
-                    </>
-                  ) : (
-                    <>
-                      {contactInfo?.socialFacebook && (
-                        <a 
-                          href={contactInfo.socialFacebook} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="w-10 h-10 rounded-full bg-[#3b5998] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
-                        >
-                          <i className="fab fa-facebook-f"></i>
-                        </a>
-                      )}
-                      {contactInfo?.socialTwitter && (
-                        <a 
-                          href={contactInfo.socialTwitter} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="w-10 h-10 rounded-full bg-[#1da1f2] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
-                        >
-                          <i className="fab fa-twitter"></i>
-                        </a>
-                      )}
-                      {contactInfo?.socialInstagram && (
-                        <a 
-                          href={contactInfo.socialInstagram} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="w-10 h-10 rounded-full bg-[#c32aa3] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
-                        >
-                          <i className="fab fa-instagram"></i>
-                        </a>
-                      )}
-                      {contactInfo?.socialPinterest && (
-                        <a 
-                          href={contactInfo.socialPinterest} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="w-10 h-10 rounded-full bg-[#bd081c] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
-                        >
-                          <i className="fab fa-pinterest"></i>
-                        </a>
-                      )}
-                    </>
-                  )}
+              {/* Only show social media section if any social links exist or we're loading */}
+              {(isLoading || contactInfo?.socialFacebook || contactInfo?.socialTwitter || contactInfo?.socialInstagram || contactInfo?.socialPinterest) && (
+                <div className="mt-8">
+                  <h3 className="font-bold font-heading mb-4">Connect With Us</h3>
+                  <div className="flex space-x-4">
+                    {isLoading ? (
+                      <>
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                      </>
+                    ) : (
+                      <>
+                        {contactInfo?.socialFacebook && (
+                          <a 
+                            href={contactInfo.socialFacebook} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="w-10 h-10 rounded-full bg-[#3b5998] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
+                          >
+                            <i className="fab fa-facebook-f"></i>
+                          </a>
+                        )}
+                        {contactInfo?.socialTwitter && (
+                          <a 
+                            href={contactInfo.socialTwitter} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="w-10 h-10 rounded-full bg-[#1da1f2] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
+                          >
+                            <i className="fab fa-twitter"></i>
+                          </a>
+                        )}
+                        {contactInfo?.socialInstagram && (
+                          <a 
+                            href={contactInfo.socialInstagram} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="w-10 h-10 rounded-full bg-[#c32aa3] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
+                          >
+                            <i className="fab fa-instagram"></i>
+                          </a>
+                        )}
+                        {contactInfo?.socialPinterest && (
+                          <a 
+                            href={contactInfo.socialPinterest} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="w-10 h-10 rounded-full bg-[#bd081c] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
+                          >
+                            <i className="fab fa-pinterest"></i>
+                          </a>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             
             <div className="lg:w-3/5">
@@ -205,8 +222,8 @@ export default function ContactPage() {
                   {isLoading ? (
                     <Skeleton className="h-8 w-48" />
                   ) : (
-                    contactInfo?.messageFormTitle || "Send Us a Message"
-                  )}
+                    contactInfo?.messageFormTitle && contactInfo.messageFormTitle
+                  ) || "Send Us a Message"}
                 </h2>
                 
                 {submitted ? (
@@ -305,33 +322,37 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Map Section */}
-      <section className="py-16 bg-neutral-light">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl font-bold font-heading mb-8 text-center">
-              {isLoading ? <Skeleton className="h-8 w-32 mx-auto" /> : contactInfo?.mapTitle || "Find Us"}
-            </h2>
-            <div className="bg-white p-2 rounded-lg shadow-md">
-              <div className="aspect-[16/9] w-full rounded-lg overflow-hidden">
-                {isLoading ? (
-                  <Skeleton className="w-full h-full" />
-                ) : (
-                  <iframe 
-                    src={contactInfo?.mapEmbedUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk"}
-                    width="100%" 
-                    height="100%" 
-                    style={{border: 0}} 
-                    allowFullScreen={true} 
-                    loading="lazy"
-                    title="Google Maps"
-                  ></iframe>
-                )}
+      {/* Map Section - Only show if there's a map URL */}
+      {(isLoading || contactInfo?.mapEmbedUrl) && (
+        <section className="py-16 bg-neutral-light">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto">
+              {(isLoading || contactInfo?.mapTitle) && (
+                <h2 className="text-2xl font-bold font-heading mb-8 text-center">
+                  {isLoading ? <Skeleton className="h-8 w-32 mx-auto" /> : contactInfo?.mapTitle}
+                </h2>
+              )}
+              <div className="bg-white p-2 rounded-lg shadow-md">
+                <div className="aspect-[16/9] w-full rounded-lg overflow-hidden">
+                  {isLoading ? (
+                    <Skeleton className="w-full h-full" />
+                  ) : (
+                    <iframe 
+                      src={contactInfo?.mapEmbedUrl}
+                      width="100%" 
+                      height="100%" 
+                      style={{border: 0}} 
+                      allowFullScreen={true} 
+                      loading="lazy"
+                      title="Google Maps"
+                    ></iframe>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }
