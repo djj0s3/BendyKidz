@@ -202,6 +202,17 @@ export interface Footer {
   policies: PolicyLink[];
 }
 
+// Simplified footer interface for easier content management in Contentful
+export interface SimpleFooter {
+  title: string;
+  description: string;
+  socialLinks: SocialLink[];
+  quickLinks: FooterSection;
+  contactInfo: ContactInfo;
+  copyrightText: string;
+  policies: PolicyLink[];
+}
+
 export interface ContactPageInfo {
   title: string;
   subtitle: string;
