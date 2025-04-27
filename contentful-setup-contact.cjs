@@ -17,36 +17,55 @@ async function setupContactContent() {
     // Create the Contact Info content type
     console.log('Creating Contact Info content type...');
     
-    // Check if contactInfo content type already exists
+    // Since updating a published content type can cause issues, attempt to delete it first
     try {
+      console.log('Checking if contactInfo content type already exists...');
       const existingContentType = await environment.getContentType('contactInfo');
-      console.log('Content type contactInfo already exists, updating...');
+      console.log('Content type contactInfo exists, attempting to unpublish and delete...');
       
-      // Update the existing content type if needed
-      existingContentType.fields = createContactInfoFields();
-      await existingContentType.update();
-      await existingContentType.publish();
+      try {
+        // Unpublish first
+        await existingContentType.unpublish();
+        console.log('Content type unpublished...');
+      } catch (unpublishErr) {
+        console.log('Error unpublishing content type, may not be published yet:', unpublishErr.message);
+      }
       
-      console.log('Updated contactInfo content type');
+      // Now try to delete it
+      try {
+        await existingContentType.delete();
+        console.log('Content type deleted successfully');
+      } catch (deleteErr) {
+        console.log('Error deleting content type:', deleteErr.message);
+        // We'll still try to create the new one
+      }
     } catch (error) {
       if (error.name === 'NotFound') {
-        console.log('Content type contactInfo not found, creating new...');
-        
-        const contentTypeData = {
-          name: 'Contact Info',
-          displayField: 'title',
-          fields: createContactInfoFields(),
-          sys: {
-            id: 'contactInfo'
-          }
-        };
-        
-        const contentType = await environment.createContentTypeWithId('contactInfo', contentTypeData);
-        await contentType.publish();
-        console.log('Created new contactInfo content type');
+        console.log('Content type contactInfo not found, will create new');
       } else {
-        throw error;
+        console.log('Error checking for content type:', error.message);
+        // Continue and try to create the content type anyway
       }
+    }
+    
+    // Create the content type
+    console.log('Creating new contactInfo content type...');
+    try {
+      const contentTypeData = {
+        name: 'Contact Info',
+        displayField: 'title',
+        fields: createContactInfoFields(),
+        sys: {
+          id: 'contactInfo'
+        }
+      };
+      
+      const contentType = await environment.createContentTypeWithId('contactInfo', contentTypeData);
+      await contentType.publish();
+      console.log('Created and published contactInfo content type');
+    } catch (error) {
+      console.log('Error creating content type:', error);
+      throw error;
     }
 
     // Create or update the contact info entry
@@ -78,20 +97,16 @@ async function setupContactContent() {
         socialLinks: {
           'en-US': [
             {
-              platform: 'Facebook',
-              url: 'https://facebook.com/bendykidz'
+              "social": "Facebook|https://facebook.com/bendykidz"
             },
             {
-              platform: 'Twitter',
-              url: 'https://twitter.com/bendykidz'
+              "social": "Twitter|https://twitter.com/bendykidz"
             },
             {
-              platform: 'Instagram',
-              url: 'https://instagram.com/bendykidz'
+              "social": "Instagram|https://instagram.com/bendykidz"
             },
             {
-              platform: 'Pinterest',
-              url: 'https://pinterest.com/bendykidz'
+              "social": "Pinterest|https://pinterest.com/bendykidz"
             }
           ]
         },
@@ -178,28 +193,28 @@ function createContactInfoFields() {
       required: false
     },
     {
-      id: 'socialLinks',
-      name: 'Social Links',
-      type: 'Array',
-      items: {
-        type: 'Object',
-        validations: [],
-        linkType: null,
-        fields: [
-          {
-            id: 'platform',
-            name: 'Platform',
-            type: 'Symbol',
-            required: true
-          },
-          {
-            id: 'url',
-            name: 'URL',
-            type: 'Symbol',
-            required: true
-          }
-        ]
-      }
+      id: 'socialFacebook',
+      name: 'Facebook URL',
+      type: 'Symbol',
+      required: false
+    },
+    {
+      id: 'socialTwitter',
+      name: 'Twitter URL',
+      type: 'Symbol',
+      required: false
+    },
+    {
+      id: 'socialInstagram',
+      name: 'Instagram URL',
+      type: 'Symbol',
+      required: false
+    },
+    {
+      id: 'socialPinterest',
+      name: 'Pinterest URL',
+      type: 'Symbol',
+      required: false
     },
     {
       id: 'mapTitle',
@@ -210,7 +225,7 @@ function createContactInfoFields() {
     {
       id: 'mapEmbedUrl',
       name: 'Map Embed URL',
-      type: 'Symbol',
+      type: 'Text',
       required: false
     }
   ];

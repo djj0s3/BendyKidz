@@ -153,26 +153,32 @@ export default function ContactPage() {
                     </>
                   ) : (
                     (contactInfo?.socialLinks || [
-                      { platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
-                      { platform: 'Twitter', url: 'https://twitter.com', icon: 'twitter' },
-                      { platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
-                      { platform: 'Pinterest', url: 'https://pinterest.com', icon: 'pinterest' }
-                    ]).map((social, index) => (
-                      <a 
-                        key={index}
-                        href={social.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className={`w-10 h-10 rounded-full text-white flex items-center justify-center hover:opacity-90 transition-opacity ${
-                          social.platform.toLowerCase() === 'facebook' ? 'bg-[#3b5998]' :
-                          social.platform.toLowerCase() === 'twitter' ? 'bg-[#1da1f2]' : 
-                          social.platform.toLowerCase() === 'instagram' ? 'bg-[#c32aa3]' : 
-                          social.platform.toLowerCase() === 'pinterest' ? 'bg-[#bd081c]' : 'bg-primary'
-                        }`}
-                      >
-                        <i className={`fab fa-${social.platform.toLowerCase()}`}></i>
-                      </a>
-                    ))
+                      { social: 'Facebook|https://facebook.com' },
+                      { social: 'Twitter|https://twitter.com' },
+                      { social: 'Instagram|https://instagram.com' },
+                      { social: 'Pinterest|https://pinterest.com' }
+                    ]).map((socialItem, index) => {
+                      // Split the social string to get platform and URL
+                      const [platform, url] = (socialItem.social || '').split('|');
+                      if (!platform || !url) return null;
+                      
+                      return (
+                        <a 
+                          key={index}
+                          href={url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className={`w-10 h-10 rounded-full text-white flex items-center justify-center hover:opacity-90 transition-opacity ${
+                            platform.toLowerCase() === 'facebook' ? 'bg-[#3b5998]' :
+                            platform.toLowerCase() === 'twitter' ? 'bg-[#1da1f2]' : 
+                            platform.toLowerCase() === 'instagram' ? 'bg-[#c32aa3]' : 
+                            platform.toLowerCase() === 'pinterest' ? 'bg-[#bd081c]' : 'bg-primary'
+                          }`}
+                        >
+                          <i className={`fab fa-${platform.toLowerCase()}`}></i>
+                        </a>
+                      );
+                    })
                   )}
                 </div>
               </div>
