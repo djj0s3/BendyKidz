@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useMediaQuery } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
+import { Header as HeaderType } from "@shared/schema";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [, setLocation] = useLocation();
   const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // Fetch header content from API
+  const { data: headerData, isLoading, error } = useQuery<HeaderType>({
+    queryKey: ['/api/header'],
+  });
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -33,6 +40,16 @@ export default function Header() {
       setIsSearchOpen(false);
     }
   };
+  
+  // Sort navigation items by order
+  const navigationItems = headerData?.navigationItems 
+    ? [...headerData.navigationItems].sort((a, b) => a.order - b.order) 
+    : [
+        { label: 'Home', url: '/', order: 1 },
+        { label: 'Resources', url: '/articles', order: 2 },
+        { label: 'About', url: '/about', order: 3 },
+        { label: 'Contact', url: '/contact', order: 4 }
+      ];
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -45,7 +62,9 @@ export default function Header() {
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
               </svg>
             </div>
-            <span className="text-2xl font-bold text-primary font-heading">BendyKidz</span>
+            <span className="text-2xl font-bold text-primary font-heading">
+              {headerData?.title || 'BendyKidz'}
+            </span>
           </Link>
 
           {/* Desktop Search */}
@@ -54,7 +73,7 @@ export default function Header() {
               <input 
                 type="text" 
                 name="search"
-                placeholder="Search resources and articles..." 
+                placeholder={headerData?.searchPlaceholder || "Search resources and articles..."} 
                 className="w-full py-2 pl-10 pr-4 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
               />
               <div className="absolute left-3 top-2.5 text-gray-400">
@@ -65,10 +84,15 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/" className="font-heading font-medium hover:text-primary">Home</Link>
-            <Link href="/articles" className="font-heading font-medium hover:text-primary">Resources</Link>
-            <Link href="/about" className="font-heading font-medium hover:text-primary">About</Link>
-            <Link href="/contact" className="font-heading font-medium hover:text-primary">Contact</Link>
+            {navigationItems.map((item, index) => (
+              <Link 
+                key={`desktop-nav-${index}`}
+                href={item.url} 
+                className="font-heading font-medium hover:text-primary"
+              >
+                {item.label}
+              </Link>
+            ))}
             <div className="relative flex items-center">
               <input type="checkbox" id="darkMode" className="sr-only" />
               <label htmlFor="darkMode" className="flex items-center cursor-pointer">
@@ -95,7 +119,7 @@ export default function Header() {
           <input 
             type="text" 
             name="search"
-            placeholder="Search resources and articles..." 
+            placeholder={headerData?.searchPlaceholder || "Search resources and articles..."} 
             className="w-full py-2 pl-10 pr-4 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
           />
           <div className="absolute left-3 top-2.5 text-gray-400">
@@ -107,10 +131,15 @@ export default function Header() {
       {/* Mobile Navigation */}
       <div className={`md:hidden bg-white ${!isMenuOpen ? 'hidden' : ''}`}>
         <div className="container mx-auto px-4 py-3 space-y-2">
-          <Link href="/" className="block py-2 font-heading font-medium">Home</Link>
-          <Link href="/articles" className="block py-2 font-heading font-medium">Resources</Link>
-          <Link href="/about" className="block py-2 font-heading font-medium">About</Link>
-          <Link href="/contact" className="block py-2 font-heading font-medium">Contact</Link>
+          {navigationItems.map((item, index) => (
+            <Link 
+              key={`mobile-nav-${index}`}
+              href={item.url} 
+              className="block py-2 font-heading font-medium"
+            >
+              {item.label}
+            </Link>
+          ))}
           <button 
             className="block py-2 font-heading font-medium text-left w-full"
             onClick={toggleSearch}
