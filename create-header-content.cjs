@@ -1,155 +1,158 @@
-#!/usr/bin/env node
-
 const contentful = require('contentful-management');
-
-// Get environment variables
 require('dotenv').config();
 
-const spaceId = process.env.CONTENTFUL_SPACE_ID;
-const accessToken = process.env.CONTENTFUL_MANAGEMENT_TOKEN;
+const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID;
+const CONTENTFUL_MANAGEMENT_TOKEN = process.env.CONTENTFUL_MANAGEMENT_TOKEN;
 
-if (!spaceId || !accessToken) {
-  console.error('Missing required environment variables: CONTENTFUL_SPACE_ID and/or CONTENTFUL_MANAGEMENT_TOKEN');
+if (!CONTENTFUL_SPACE_ID || !CONTENTFUL_MANAGEMENT_TOKEN) {
+  console.error('Error: CONTENTFUL_SPACE_ID and CONTENTFUL_MANAGEMENT_TOKEN environment variables are required.');
   process.exit(1);
 }
 
-async function createHeaderContent() {
+async function createHeaderContentType() {
   try {
-    // Initialize the contentful management client
+    console.log('Creating Contentful client with management token...');
     const client = contentful.createClient({
-      accessToken: accessToken
+      accessToken: CONTENTFUL_MANAGEMENT_TOKEN
     });
 
-    // Get the space and environment
-    const space = await client.getSpace(spaceId);
+    console.log(`Accessing space ${CONTENTFUL_SPACE_ID}...`);
+    const space = await client.getSpace(CONTENTFUL_SPACE_ID);
+    
+    console.log('Accessing default environment...');
     const environment = await space.getEnvironment('master');
 
-    console.log('Creating Header content type...');
-
-    // Check if content type already exists
-    let contentType;
+    // Check if header content type already exists
     try {
-      contentType = await environment.getContentType('header');
-      console.log('Header content type already exists.');
+      const existingContentType = await environment.getContentType('header');
+      console.log('Header content type already exists, updating it...');
+      
+      // You can update fields here if needed
+      // existingContentType.fields.push(...);
+      // await existingContentType.update();
+      
+      return existingContentType;
     } catch (error) {
-      // Create the content type if it doesn't exist
-      contentType = await environment.createContentType({
-        name: 'Header',
-        sys: {
-          id: 'header'
+      console.log('Header content type does not exist yet, creating it...');
+    }
+
+    // Create the Header content type
+    console.log('Creating header content type...');
+    const headerContentType = await environment.createContentTypeWithId('header', {
+      name: 'Header',
+      description: 'Website header with navigation menu',
+      displayField: 'title',
+      fields: [
+        {
+          id: 'title',
+          name: 'Title',
+          type: 'Symbol',
+          required: true,
+          localized: false
         },
-        displayField: 'title',
-        fields: [
-          {
-            id: 'title',
-            name: 'Title',
-            type: 'Symbol',
-            required: true,
-            localized: false,
-            validations: []
-          },
-          {
-            id: 'logoUrl',
-            name: 'Logo URL',
-            type: 'Symbol',
-            required: false,
-            localized: false,
-            validations: []
-          },
-          {
-            id: 'navigationItems',
-            name: 'Navigation Items',
-            type: 'Array',
-            required: false,
-            localized: false,
-            items: {
-              type: 'Object',
-              validations: [],
-              linkType: null
-            }
-          },
-          {
-            id: 'searchPlaceholder',
-            name: 'Search Placeholder',
-            type: 'Symbol',
-            required: false,
-            localized: false,
-            validations: []
-          }
-        ]
-      });
+        {
+          id: 'logoUrl',
+          name: 'Logo URL',
+          type: 'Symbol',
+          required: false,
+          localized: false
+        },
+        {
+          id: 'navigationItems',
+          name: 'Navigation Items',
+          type: 'Object',
+          required: true,
+          localized: false
+        },
+        {
+          id: 'searchPlaceholder',
+          name: 'Search Placeholder',
+          type: 'Symbol',
+          required: false,
+          localized: false
+        }
+      ]
+    });
 
-      // Publish the content type
-      await contentType.publish();
-      console.log('Header content type created and published.');
-    }
-
-    console.log('Creating Header entry...');
+    console.log('Publishing header content type...');
+    await headerContentType.publish();
+    console.log('Header content type has been created and published successfully!');
     
-    // Create the entry
-    let entry;
-    try {
-      const entries = await environment.getEntries({
-        content_type: 'header',
-        limit: 1
-      });
-
-      if (entries.items.length > 0) {
-        console.log('Header entry already exists.');
-        entry = entries.items[0];
-      } else {
-        // Create the entry if it doesn't exist
-        entry = await environment.createEntry('header', {
-          fields: {
-            title: {
-              'en-US': 'BendyKidz'
-            },
-            logoUrl: {
-              'en-US': '' // We can use SVG directly in the code
-            },
-            navigationItems: {
-              'en-US': [
-                {
-                  label: 'Home',
-                  url: '/',
-                  order: 1
-                },
-                {
-                  label: 'Resources',
-                  url: '/articles',
-                  order: 2
-                },
-                {
-                  label: 'About',
-                  url: '/about',
-                  order: 3
-                },
-                {
-                  label: 'Contact',
-                  url: '/contact',
-                  order: 4
-                }
-              ]
-            },
-            searchPlaceholder: {
-              'en-US': 'Search resources and articles...'
-            }
-          }
-        });
-
-        // Publish the entry
-        await entry.publish();
-        console.log('Header entry created and published.');
-      }
-
-      console.log('Header content setup complete!');
-    } catch (error) {
-      console.error('Error creating Header entry:', error);
-    }
+    return headerContentType;
   } catch (error) {
-    console.error('Error setting up Header content:', error);
+    console.error('Error creating header content type:', error);
+    throw error;
+  }
+}
+
+async function createHeaderEntry(contentType) {
+  try {
+    const client = contentful.createClient({
+      accessToken: CONTENTFUL_MANAGEMENT_TOKEN
+    });
+
+    const space = await client.getSpace(CONTENTFUL_SPACE_ID);
+    const environment = await space.getEnvironment('master');
+
+    // Check if a header entry already exists
+    const entries = await environment.getEntries({
+      content_type: 'header'
+    });
+
+    if (entries.items.length > 0) {
+      console.log('Header entry already exists, skipping creation...');
+      return entries.items[0];
+    }
+
+    console.log('Creating header entry...');
+    const entry = await environment.createEntry('header', {
+      fields: {
+        title: {
+          'en-US': 'BendyKidz'
+        },
+        logoUrl: {
+          'en-US': ''  // Leave empty for now
+        },
+        navigationItems: {
+          'en-US': {
+            items: [
+              { label: 'Home', url: '/', order: 1 },
+              { label: 'Resources', url: '/articles', order: 2 },
+              { label: 'About', url: '/about', order: 3 },
+              { label: 'Contact', url: '/contact', order: 4 }
+            ]
+          }
+        },
+        searchPlaceholder: {
+          'en-US': 'Search resources and articles...'
+        }
+      }
+    });
+
+    console.log('Publishing header entry...');
+    await entry.publish();
+    console.log('Header entry has been created and published successfully!');
+    
+    return entry;
+  } catch (error) {
+    console.error('Error creating header entry:', error);
+    throw error;
+  }
+}
+
+async function run() {
+  try {
+    console.log('Starting header content setup...');
+    const contentType = await createHeaderContentType();
+    console.log('Waiting 5 seconds for Contentful to process the content type...');
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    const entry = await createHeaderEntry(contentType);
+    console.log('Header setup completed successfully!');
+  } catch (error) {
+    console.error('Header setup failed:', error);
     process.exit(1);
   }
 }
 
-createHeaderContent();
+run();

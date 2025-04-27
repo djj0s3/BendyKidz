@@ -1,208 +1,208 @@
-#!/usr/bin/env node
-
 const contentful = require('contentful-management');
-
-// Get environment variables
 require('dotenv').config();
 
-const spaceId = process.env.CONTENTFUL_SPACE_ID;
-const accessToken = process.env.CONTENTFUL_MANAGEMENT_TOKEN;
+const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID;
+const CONTENTFUL_MANAGEMENT_TOKEN = process.env.CONTENTFUL_MANAGEMENT_TOKEN;
 
-if (!spaceId || !accessToken) {
-  console.error('Missing required environment variables: CONTENTFUL_SPACE_ID and/or CONTENTFUL_MANAGEMENT_TOKEN');
+if (!CONTENTFUL_SPACE_ID || !CONTENTFUL_MANAGEMENT_TOKEN) {
+  console.error('Error: CONTENTFUL_SPACE_ID and CONTENTFUL_MANAGEMENT_TOKEN environment variables are required.');
   process.exit(1);
 }
 
-async function createFooterContent() {
+async function createFooterContentType() {
   try {
-    // Initialize the contentful management client
+    console.log('Creating Contentful client with management token...');
     const client = contentful.createClient({
-      accessToken: accessToken
+      accessToken: CONTENTFUL_MANAGEMENT_TOKEN
     });
 
-    // Get the space and environment
-    const space = await client.getSpace(spaceId);
+    console.log(`Accessing space ${CONTENTFUL_SPACE_ID}...`);
+    const space = await client.getSpace(CONTENTFUL_SPACE_ID);
+    
+    console.log('Accessing default environment...');
     const environment = await space.getEnvironment('master');
 
-    console.log('Creating Footer content type...');
-
-    // Check if content type already exists
-    let contentType;
+    // Check if footer content type already exists
     try {
-      contentType = await environment.getContentType('footer');
-      console.log('Footer content type already exists.');
+      const existingContentType = await environment.getContentType('footer');
+      console.log('Footer content type already exists, updating it...');
+      
+      // You can update fields here if needed
+      // existingContentType.fields.push(...);
+      // await existingContentType.update();
+      
+      return existingContentType;
     } catch (error) {
-      // Create the content type if it doesn't exist
-      contentType = await environment.createContentType({
-        name: 'Footer',
-        sys: {
-          id: 'footer'
+      console.log('Footer content type does not exist yet, creating it...');
+    }
+
+    // Create the Footer content type
+    console.log('Creating footer content type...');
+    const footerContentType = await environment.createContentTypeWithId('footer', {
+      name: 'Footer',
+      description: 'Website footer with quick links, contact information and social media links',
+      displayField: 'title',
+      fields: [
+        {
+          id: 'title',
+          name: 'Title',
+          type: 'Symbol',
+          required: true,
+          localized: false
         },
-        displayField: 'title',
-        fields: [
-          {
-            id: 'title',
-            name: 'Title',
-            type: 'Symbol',
-            required: true,
-            localized: false,
-            validations: []
-          },
-          {
-            id: 'description',
-            name: 'Description',
-            type: 'Text',
-            required: false,
-            localized: false,
-            validations: []
-          },
-          {
-            id: 'socialLinks',
-            name: 'Social Links',
-            type: 'Array',
-            required: false,
-            localized: false,
-            items: {
-              type: 'Object',
-              validations: [],
-              linkType: null
-            }
-          },
-          {
-            id: 'quickLinks',
-            name: 'Quick Links Section',
-            type: 'Object',
-            required: false,
-            localized: false,
-          },
-          {
-            id: 'contactInfo',
-            name: 'Contact Information',
-            type: 'Object',
-            required: false,
-            localized: false,
-          },
-          {
-            id: 'copyrightText',
-            name: 'Copyright Text',
-            type: 'Symbol',
-            required: false,
-            localized: false,
-            validations: []
-          },
-          {
-            id: 'policies',
-            name: 'Policy Links',
-            type: 'Array',
-            required: false,
-            localized: false,
-            items: {
-              type: 'Object',
-              validations: [],
-              linkType: null
-            }
-          }
-        ]
-      });
+        {
+          id: 'description',
+          name: 'Description',
+          type: 'Text',
+          required: true,
+          localized: false
+        },
+        {
+          id: 'socialLinks',
+          name: 'Social Links',
+          type: 'Object',
+          required: false,
+          localized: false
+        },
+        {
+          id: 'quickLinks',
+          name: 'Quick Links',
+          type: 'Object',
+          required: true,
+          localized: false
+        },
+        {
+          id: 'contactInfo',
+          name: 'Contact Information',
+          type: 'Object',
+          required: true,
+          localized: false
+        },
+        {
+          id: 'copyrightText',
+          name: 'Copyright Text',
+          type: 'Symbol',
+          required: true,
+          localized: false
+        },
+        {
+          id: 'policies',
+          name: 'Policy Links',
+          type: 'Object',
+          required: false,
+          localized: false
+        }
+      ]
+    });
 
-      // Publish the content type
-      await contentType.publish();
-      console.log('Footer content type created and published.');
-    }
-
-    console.log('Creating Footer entry...');
+    console.log('Publishing footer content type...');
+    await footerContentType.publish();
+    console.log('Footer content type has been created and published successfully!');
     
-    // Create the entry
-    let entry;
-    try {
-      const entries = await environment.getEntries({
-        content_type: 'footer',
-        limit: 1
-      });
-
-      if (entries.items.length > 0) {
-        console.log('Footer entry already exists.');
-        entry = entries.items[0];
-      } else {
-        // Create the entry if it doesn't exist
-        entry = await environment.createEntry('footer', {
-          fields: {
-            title: {
-              'en-US': 'BendyKidz'
-            },
-            description: {
-              'en-US': 'Expert occupational therapy resources for parents to support their children\'s development through play-based activities.'
-            },
-            socialLinks: {
-              'en-US': [
-                {
-                  platform: 'facebook',
-                  url: '#',
-                  icon: 'fab fa-facebook-f'
-                },
-                {
-                  platform: 'instagram',
-                  url: '#',
-                  icon: 'fab fa-instagram'
-                },
-                {
-                  platform: 'pinterest',
-                  url: '#',
-                  icon: 'fab fa-pinterest'
-                },
-                {
-                  platform: 'youtube',
-                  url: '#',
-                  icon: 'fab fa-youtube'
-                }
-              ]
-            },
-            quickLinks: {
-              'en-US': {
-                title: 'Quick Links',
-                links: [
-                  { label: 'Home', url: '/' },
-                  { label: 'About Us', url: '/about' },
-                  { label: 'Resources', url: '/articles' },
-                  { label: 'Articles', url: '/articles' },
-                  { label: 'Contact', url: '/contact' }
-                ]
-              }
-            },
-            contactInfo: {
-              'en-US': {
-                title: 'Contact Us',
-                address: '123 Therapy Lane\nWellness City, WC 12345',
-                phone: '(555) 123-4567',
-                email: 'info@bendykidz.com'
-              }
-            },
-            copyrightText: {
-              'en-US': '© {year} BendyKidz. All rights reserved.'
-            },
-            policies: {
-              'en-US': [
-                { label: 'Privacy Policy', url: '#' },
-                { label: 'Terms of Service', url: '#' },
-                { label: 'Cookie Policy', url: '#' }
-              ]
-            }
-          }
-        });
-
-        // Publish the entry
-        await entry.publish();
-        console.log('Footer entry created and published.');
-      }
-
-      console.log('Footer content setup complete!');
-    } catch (error) {
-      console.error('Error creating Footer entry:', error);
-    }
+    return footerContentType;
   } catch (error) {
-    console.error('Error setting up Footer content:', error);
+    console.error('Error creating footer content type:', error);
+    throw error;
+  }
+}
+
+async function createFooterEntry(contentType) {
+  try {
+    const client = contentful.createClient({
+      accessToken: CONTENTFUL_MANAGEMENT_TOKEN
+    });
+
+    const space = await client.getSpace(CONTENTFUL_SPACE_ID);
+    const environment = await space.getEnvironment('master');
+
+    // Check if a footer entry already exists
+    const entries = await environment.getEntries({
+      content_type: 'footer'
+    });
+
+    if (entries.items.length > 0) {
+      console.log('Footer entry already exists, skipping creation...');
+      return entries.items[0];
+    }
+
+    console.log('Creating footer entry...');
+    const entry = await environment.createEntry('footer', {
+      fields: {
+        title: {
+          'en-US': 'BendyKidz'
+        },
+        description: {
+          'en-US': 'Expert occupational therapy resources for parents to support their children\'s development through play-based activities.'
+        },
+        socialLinks: {
+          'en-US': {
+            items: [
+              { platform: 'facebook', url: '#', icon: 'fab fa-facebook-f' },
+              { platform: 'instagram', url: '#', icon: 'fab fa-instagram' },
+              { platform: 'pinterest', url: '#', icon: 'fab fa-pinterest' },
+              { platform: 'youtube', url: '#', icon: 'fab fa-youtube' }
+            ]
+          }
+        },
+        quickLinks: {
+          'en-US': {
+            title: 'Quick Links',
+            links: [
+              { label: 'Home', url: '/' },
+              { label: 'About Us', url: '/about' },
+              { label: 'Resources', url: '/articles' },
+              { label: 'Articles', url: '/articles' },
+              { label: 'Contact', url: '/contact' }
+            ]
+          }
+        },
+        contactInfo: {
+          'en-US': {
+            title: 'Contact Us',
+            address: '123 Therapy Lane\nWellness City, WC 12345',
+            phone: '(555) 123-4567',
+            email: 'info@bendykidz.com'
+          }
+        },
+        copyrightText: {
+          'en-US': '© {year} BendyKidz. All rights reserved.'
+        },
+        policies: {
+          'en-US': {
+            items: [
+              { label: 'Privacy Policy', url: '#' },
+              { label: 'Terms of Service', url: '#' },
+              { label: 'Cookie Policy', url: '#' }
+            ]
+          }
+        }
+      }
+    });
+
+    console.log('Publishing footer entry...');
+    await entry.publish();
+    console.log('Footer entry has been created and published successfully!');
+    
+    return entry;
+  } catch (error) {
+    console.error('Error creating footer entry:', error);
+    throw error;
+  }
+}
+
+async function run() {
+  try {
+    console.log('Starting footer content setup...');
+    const contentType = await createFooterContentType();
+    console.log('Waiting 5 seconds for Contentful to process the content type...');
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    const entry = await createFooterEntry(contentType);
+    console.log('Footer setup completed successfully!');
+  } catch (error) {
+    console.error('Footer setup failed:', error);
     process.exit(1);
   }
 }
 
-createFooterContent();
+run();
