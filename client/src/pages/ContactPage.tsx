@@ -171,38 +171,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-
-      {/* Map Section - Only show if there's a map URL */}
-      {(isLoading || contactInfo?.mapEmbedUrl) && (
-        <section className="py-16 bg-neutral-light">
-          <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto">
-              {(isLoading || contactInfo?.mapTitle) && (
-                <h2 className="text-2xl font-bold font-heading mb-8 text-center">
-                  {isLoading ? <Skeleton className="h-8 w-32 mx-auto" /> : contactInfo?.mapTitle}
-                </h2>
-              )}
-              <div className="bg-white p-2 rounded-lg shadow-md">
-                <div className="aspect-[16/9] w-full rounded-lg overflow-hidden">
-                  {isLoading ? (
-                    <Skeleton className="w-full h-full" />
-                  ) : (
-                    <iframe 
-                      src={contactInfo?.mapEmbedUrl}
-                      width="100%" 
-                      height="100%" 
-                      style={{border: 0}} 
-                      allowFullScreen={true} 
-                      loading="lazy"
-                      title="Google Maps"
-                    ></iframe>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
     </>
   );
 }
