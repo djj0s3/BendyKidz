@@ -1,4 +1,4 @@
-import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection } from '@shared/schema';
+import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection, Header, Footer } from '@shared/schema';
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID || '';
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN || '';
@@ -529,6 +529,136 @@ export async function getFeaturedCollections(): Promise<FeaturedCollection[]> {
   }
 }
 
+// Get header content
+export async function getHeader(): Promise<Header> {
+  try {
+    console.log('Fetching header content from Contentful...');
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'header',
+      limit: '1',
+      include: '0'
+    });
+
+    if (!response?.items?.length) {
+      console.log('No header found in Contentful, using default header');
+      // Return default header if no content found
+      return {
+        title: 'BendyKidz',
+        navigationItems: [
+          { label: 'Home', url: '/', order: 1 },
+          { label: 'Resources', url: '/articles', order: 2 },
+          { label: 'About', url: '/about', order: 3 },
+          { label: 'Contact', url: '/contact', order: 4 }
+        ],
+        searchPlaceholder: 'Search resources and articles...'
+      };
+    }
+
+    console.log('Found header in Contentful, transforming data');
+    return transformContentfulHeader(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching header content:', error);
+    // Return default header if error
+    return {
+      title: 'BendyKidz',
+      navigationItems: [
+        { label: 'Home', url: '/', order: 1 },
+        { label: 'Resources', url: '/articles', order: 2 },
+        { label: 'About', url: '/about', order: 3 },
+        { label: 'Contact', url: '/contact', order: 4 }
+      ],
+      searchPlaceholder: 'Search resources and articles...'
+    };
+  }
+}
+
+// Get footer content
+export async function getFooter(): Promise<Footer> {
+  try {
+    console.log('Fetching footer content from Contentful...');
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'footer',
+      limit: '1',
+      include: '0'
+    });
+
+    if (!response?.items?.length) {
+      console.log('No footer found in Contentful, using default footer');
+      // Return default footer if no content found
+      return {
+        title: 'BendyKidz',
+        description: 'Expert occupational therapy resources for parents to support their children\'s development through play-based activities.',
+        socialLinks: [
+          { platform: 'facebook', url: '#', icon: 'fab fa-facebook-f' },
+          { platform: 'instagram', url: '#', icon: 'fab fa-instagram' },
+          { platform: 'pinterest', url: '#', icon: 'fab fa-pinterest' },
+          { platform: 'youtube', url: '#', icon: 'fab fa-youtube' }
+        ],
+        quickLinks: {
+          title: 'Quick Links',
+          links: [
+            { label: 'Home', url: '/' },
+            { label: 'About Us', url: '/about' },
+            { label: 'Resources', url: '/articles' },
+            { label: 'Articles', url: '/articles' },
+            { label: 'Contact', url: '/contact' }
+          ]
+        },
+        contactInfo: {
+          title: 'Contact Us',
+          address: '123 Therapy Lane\nWellness City, WC 12345',
+          phone: '(555) 123-4567',
+          email: 'info@bendykidz.com'
+        },
+        copyrightText: '© {year} BendyKidz. All rights reserved.',
+        policies: [
+          { label: 'Privacy Policy', url: '#' },
+          { label: 'Terms of Service', url: '#' },
+          { label: 'Cookie Policy', url: '#' }
+        ]
+      };
+    }
+
+    console.log('Found footer in Contentful, transforming data');
+    return transformContentfulFooter(response.items[0]);
+  } catch (error) {
+    console.error('Error fetching footer content:', error);
+    // Return default footer if error
+    return {
+      title: 'BendyKidz',
+      description: 'Expert occupational therapy resources for parents to support their children\'s development through play-based activities.',
+      socialLinks: [
+        { platform: 'facebook', url: '#', icon: 'fab fa-facebook-f' },
+        { platform: 'instagram', url: '#', icon: 'fab fa-instagram' },
+        { platform: 'pinterest', url: '#', icon: 'fab fa-pinterest' },
+        { platform: 'youtube', url: '#', icon: 'fab fa-youtube' }
+      ],
+      quickLinks: {
+        title: 'Quick Links',
+        links: [
+          { label: 'Home', url: '/' },
+          { label: 'About Us', url: '/about' },
+          { label: 'Resources', url: '/articles' },
+          { label: 'Articles', url: '/articles' },
+          { label: 'Contact', url: '/contact' }
+        ]
+      },
+      contactInfo: {
+        title: 'Contact Us',
+        address: '123 Therapy Lane\nWellness City, WC 12345',
+        phone: '(555) 123-4567',
+        email: 'info@bendykidz.com'
+      },
+      copyrightText: '© {year} BendyKidz. All rights reserved.',
+      policies: [
+        { label: 'Privacy Policy', url: '#' },
+        { label: 'Terms of Service', url: '#' },
+        { label: 'Cookie Policy', url: '#' }
+      ]
+    };
+  }
+}
+
 // Helper functions to transform Contentful data
 function transformContentfulArticle(item: any, assetResponse?: any, authorsResponse?: any): Article {
   const fields = item.fields;
@@ -860,6 +990,59 @@ function transformContentfulFeaturedCollection(item: any): FeaturedCollection {
     filterValue: fields.filterValue?.['en-US'] || fields.filterValue || '',
     maxItems: fields.maxItems?.['en-US'] || fields.maxItems || 3,
     active: fields.active?.['en-US'] || fields.active || true
+  };
+}
+
+function transformContentfulHeader(item: any): Header {
+  const fields = item.fields;
+  
+  return {
+    title: fields.title?.['en-US'] || fields.title || 'BendyKidz',
+    logoUrl: fields.logoUrl?.['en-US'] || fields.logoUrl || '',
+    navigationItems: fields.navigationItems?.['en-US'] || fields.navigationItems || [
+      { label: 'Home', url: '/', order: 1 },
+      { label: 'Resources', url: '/articles', order: 2 },
+      { label: 'About', url: '/about', order: 3 },
+      { label: 'Contact', url: '/contact', order: 4 }
+    ],
+    searchPlaceholder: fields.searchPlaceholder?.['en-US'] || fields.searchPlaceholder || 'Search resources and articles...'
+  };
+}
+
+function transformContentfulFooter(item: any): Footer {
+  const fields = item.fields;
+  
+  return {
+    title: fields.title?.['en-US'] || fields.title || 'BendyKidz',
+    description: fields.description?.['en-US'] || fields.description || 'Expert occupational therapy resources for parents to support their children\'s development through play-based activities.',
+    socialLinks: fields.socialLinks?.['en-US'] || fields.socialLinks || [
+      { platform: 'facebook', url: '#', icon: 'fab fa-facebook-f' },
+      { platform: 'instagram', url: '#', icon: 'fab fa-instagram' },
+      { platform: 'pinterest', url: '#', icon: 'fab fa-pinterest' },
+      { platform: 'youtube', url: '#', icon: 'fab fa-youtube' }
+    ],
+    quickLinks: fields.quickLinks?.['en-US'] || fields.quickLinks || {
+      title: 'Quick Links',
+      links: [
+        { label: 'Home', url: '/' },
+        { label: 'About Us', url: '/about' },
+        { label: 'Resources', url: '/articles' },
+        { label: 'Articles', url: '/articles' },
+        { label: 'Contact', url: '/contact' }
+      ]
+    },
+    contactInfo: fields.contactInfo?.['en-US'] || fields.contactInfo || {
+      title: 'Contact Us',
+      address: '123 Therapy Lane\nWellness City, WC 12345',
+      phone: '(555) 123-4567',
+      email: 'info@bendykidz.com'
+    },
+    copyrightText: fields.copyrightText?.['en-US'] || fields.copyrightText || '© {year} BendyKidz. All rights reserved.',
+    policies: fields.policies?.['en-US'] || fields.policies || [
+      { label: 'Privacy Policy', url: '#' },
+      { label: 'Terms of Service', url: '#' },
+      { label: 'Cookie Policy', url: '#' }
+    ]
   };
 }
 

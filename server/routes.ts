@@ -19,7 +19,9 @@ import {
   getTeamMembers,
   getSiteStats,
   getHeroSection,
-  getFeaturedCollections
+  getFeaturedCollections,
+  getHeader,
+  getFooter
 } from "./contentful";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -183,6 +185,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching featured collections:", error);
       res.status(500).json({ message: "Failed to fetch featured collections" });
+    }
+  });
+
+  app.get("/api/header", async (req, res) => {
+    try {
+      const header = await getHeader();
+      res.json(header);
+    } catch (error) {
+      console.error("Error fetching header content:", error);
+      res.status(500).json({ message: "Failed to fetch header content" });
+    }
+  });
+
+  app.get("/api/footer", async (req, res) => {
+    try {
+      const footer = await getFooter();
+      res.json(footer);
+    } catch (error) {
+      console.error("Error fetching footer content:", error);
+      res.status(500).json({ message: "Failed to fetch footer content" });
     }
   });
 

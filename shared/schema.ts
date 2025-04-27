@@ -150,3 +150,54 @@ export interface FeaturedCollection {
   maxItems: number;
   active: boolean;
 }
+
+export interface NavigationItem {
+  label: string;
+  url: string;
+  order: number;
+}
+
+export interface Header {
+  title: string;
+  logoUrl?: string;
+  navigationItems: NavigationItem[];
+  searchPlaceholder: string;
+}
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+  icon: string;
+}
+
+export interface QuickLink {
+  label: string;
+  url: string;
+}
+
+export interface FooterSection {
+  title: string;
+  links: QuickLink[];
+}
+
+export interface ContactInfo {
+  title: string;
+  address: string;
+  phone: string;
+  email: string;
+}
+
+export interface PolicyLink {
+  label: string;
+  url: string;
+}
+
+export interface Footer {
+  title: string;
+  description: string;
+  socialLinks: SocialLink[];
+  quickLinks: FooterSection;
+  contactInfo: ContactInfo;
+  copyrightText: string;
+  policies: PolicyLink[];
+}
