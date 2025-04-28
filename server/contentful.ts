@@ -1,4 +1,4 @@
-import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection, Header, Footer, ContactPageInfo } from '@shared/schema';
+import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection, Header, Footer, ContactPageInfo, CoreValue } from '@shared/schema';
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID || '';
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN || '';
@@ -541,6 +541,81 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
   } catch (error) {
     console.error('Error fetching team members:', error);
     return [];
+  }
+}
+
+export async function getCoreValues(): Promise<CoreValue[]> {
+  try {
+    console.log('Fetching core values from Contentful...');
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'coreValue',
+      order: 'fields.displayOrder',
+      include: '1'
+    });
+    
+    console.log(`Found ${response.items?.length || 0} core values`);
+    
+    if (response.items?.length > 0) {
+      console.log('Core values found:', response.items.map(item => item.fields.title?.['en-US'] || 'Unnamed'));
+      return response.items.map(item => transformContentfulCoreValue(item));
+    }
+    
+    // Return default values if none found in Contentful
+    return [
+      {
+        id: 'default-excellence',
+        title: 'Excellence',
+        description: 'Providing the highest quality evidence-based resources and information.',
+        icon: 'fas fa-star',
+        iconColor: 'primary',
+        displayOrder: 1
+      },
+      {
+        id: 'default-compassion',
+        title: 'Compassion',
+        description: 'Understanding each child\'s unique journey and supporting families with empathy.',
+        icon: 'fas fa-heart',
+        iconColor: 'secondary',
+        displayOrder: 2
+      },
+      {
+        id: 'default-innovation',
+        title: 'Innovation',
+        description: 'Constantly evolving our approach to create effective, engaging interventions.',
+        icon: 'fas fa-lightbulb',
+        iconColor: 'accent',
+        displayOrder: 3
+      }
+    ];
+  } catch (error) {
+    console.error('Error fetching core values:', error);
+    // Return default values on error
+    return [
+      {
+        id: 'default-excellence',
+        title: 'Excellence',
+        description: 'Providing the highest quality evidence-based resources and information.',
+        icon: 'fas fa-star',
+        iconColor: 'primary',
+        displayOrder: 1
+      },
+      {
+        id: 'default-compassion',
+        title: 'Compassion',
+        description: 'Understanding each child\'s unique journey and supporting families with empathy.',
+        icon: 'fas fa-heart',
+        iconColor: 'secondary',
+        displayOrder: 2
+      },
+      {
+        id: 'default-innovation',
+        title: 'Innovation',
+        description: 'Constantly evolving our approach to create effective, engaging interventions.',
+        icon: 'fas fa-lightbulb',
+        iconColor: 'accent',
+        displayOrder: 3
+      }
+    ];
   }
 }
 
@@ -1128,6 +1203,26 @@ function transformContentfulTeamMember(item: any, response?: any): TeamMember {
     role,
     bio,
     avatar: avatarUrl
+  };
+}
+
+function transformContentfulCoreValue(item: any): CoreValue {
+  const fields = item.fields;
+  
+  // Get localized or direct fields
+  const title = fields.title?.['en-US'] || fields.title || '';
+  const description = fields.description?.['en-US'] || fields.description || '';
+  const icon = fields.icon?.['en-US'] || fields.icon || 'fas fa-star';
+  const iconColor = fields.iconColor?.['en-US'] || fields.iconColor || 'primary';
+  const displayOrder = fields.displayOrder?.['en-US'] || fields.displayOrder || 1;
+  
+  return {
+    id: item.sys.id,
+    title,
+    description,
+    icon,
+    iconColor,
+    displayOrder
   };
 }
 

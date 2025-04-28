@@ -18,6 +18,7 @@ import {
   getAboutContent,
   getTeamMembers,
   getSiteStats,
+  getCoreValues,
   getHeroSection,
   getFeaturedCollections,
   getHeader,
@@ -158,6 +159,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching team members:", error);
       res.status(500).json({ message: "Failed to fetch team members" });
+    }
+  });
+  
+  app.get("/api/core-values", async (req, res) => {
+    try {
+      const coreValues = await getCoreValues();
+      res.json(coreValues);
+    } catch (error) {
+      console.error("Error fetching core values:", error);
+      res.status(500).json({ message: "Failed to fetch core values" });
     }
   });
 
