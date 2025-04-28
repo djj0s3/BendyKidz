@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { AboutContent, TeamMember } from "@shared/schema";
+import { AboutContent, TeamMember, CoreValue } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
@@ -10,6 +10,10 @@ export default function AboutPage() {
 
   const { data: teamMembers, isLoading: teamLoading } = useQuery<TeamMember[]>({
     queryKey: ['/api/team'],
+  });
+  
+  const { data: coreValues, isLoading: valuesLoading } = useQuery<CoreValue[]>({
+    queryKey: ['/api/core-values'],
   });
 
   return (
@@ -94,27 +98,66 @@ export default function AboutPage() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                <div className="bg-neutral-light p-6 rounded-lg text-center">
-                  <div className="w-16 h-16 bg-primary bg-opacity-10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i className="fas fa-star text-xl"></i>
-                  </div>
-                  <h3 className="font-bold font-heading mb-2">Excellence</h3>
-                  <p className="text-gray-600">Providing the highest quality evidence-based resources and information.</p>
-                </div>
-                <div className="bg-neutral-light p-6 rounded-lg text-center">
-                  <div className="w-16 h-16 bg-secondary bg-opacity-10 text-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i className="fas fa-heart text-xl"></i>
-                  </div>
-                  <h3 className="font-bold font-heading mb-2">Compassion</h3>
-                  <p className="text-gray-600">Understanding each child's unique journey and supporting families with empathy.</p>
-                </div>
-                <div className="bg-neutral-light p-6 rounded-lg text-center">
-                  <div className="w-16 h-16 bg-accent bg-opacity-10 text-accent rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i className="fas fa-lightbulb text-xl"></i>
-                  </div>
-                  <h3 className="font-bold font-heading mb-2">Innovation</h3>
-                  <p className="text-gray-600">Constantly evolving our approach to create effective, engaging interventions.</p>
-                </div>
+                {valuesLoading ? (
+                  <>
+                    <div className="bg-neutral-light p-6 rounded-lg text-center">
+                      <Skeleton className="w-16 h-16 rounded-full mx-auto mb-4" />
+                      <Skeleton className="h-6 w-32 mx-auto mb-2" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-5/6 mx-auto" />
+                    </div>
+                    <div className="bg-neutral-light p-6 rounded-lg text-center">
+                      <Skeleton className="w-16 h-16 rounded-full mx-auto mb-4" />
+                      <Skeleton className="h-6 w-32 mx-auto mb-2" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-5/6 mx-auto" />
+                    </div>
+                    <div className="bg-neutral-light p-6 rounded-lg text-center">
+                      <Skeleton className="w-16 h-16 rounded-full mx-auto mb-4" />
+                      <Skeleton className="h-6 w-32 mx-auto mb-2" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-5/6 mx-auto" />
+                    </div>
+                  </>
+                ) : coreValues && coreValues.length > 0 ? (
+                  // Sort values by display order and map them to components
+                  coreValues
+                    .sort((a, b) => a.displayOrder - b.displayOrder)
+                    .map((value) => (
+                      <div key={value.id} className="bg-neutral-light p-6 rounded-lg text-center">
+                        <div className={`w-16 h-16 bg-${value.iconColor || 'primary'} bg-opacity-10 text-${value.iconColor || 'primary'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                          <i className={`${value.icon || 'fas fa-star'} text-xl`}></i>
+                        </div>
+                        <h3 className="font-bold font-heading mb-2">{value.title}</h3>
+                        <p className="text-gray-600">{value.description}</p>
+                      </div>
+                    ))
+                ) : (
+                  // Fallback values if none are available from the API
+                  <>
+                    <div className="bg-neutral-light p-6 rounded-lg text-center">
+                      <div className="w-16 h-16 bg-primary bg-opacity-10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i className="fas fa-star text-xl"></i>
+                      </div>
+                      <h3 className="font-bold font-heading mb-2">Excellence</h3>
+                      <p className="text-gray-600">Providing the highest quality evidence-based resources and information.</p>
+                    </div>
+                    <div className="bg-neutral-light p-6 rounded-lg text-center">
+                      <div className="w-16 h-16 bg-secondary bg-opacity-10 text-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i className="fas fa-heart text-xl"></i>
+                      </div>
+                      <h3 className="font-bold font-heading mb-2">Compassion</h3>
+                      <p className="text-gray-600">Understanding each child's unique journey and supporting families with empathy.</p>
+                    </div>
+                    <div className="bg-neutral-light p-6 rounded-lg text-center">
+                      <div className="w-16 h-16 bg-accent bg-opacity-10 text-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i className="fas fa-lightbulb text-xl"></i>
+                      </div>
+                      <h3 className="font-bold font-heading mb-2">Innovation</h3>
+                      <p className="text-gray-600">Constantly evolving our approach to create effective, engaging interventions.</p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
