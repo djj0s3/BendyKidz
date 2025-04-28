@@ -45,7 +45,7 @@ export default function AboutSection() {
   `;
 
   return (
-    <section className="py-16 bg-primary bg-opacity-10">
+    <section className="py-16 bg-primary bg-opacity-80">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-8 items-center">
           <div className="md:w-1/2">
@@ -58,13 +58,13 @@ export default function AboutSection() {
             />
           </div>
           <div className="md:w-1/2">
-            <h2 className="text-2xl md:text-3xl font-bold font-heading mb-4 text-primary">
+            <h2 className="text-2xl md:text-3xl font-bold font-heading mb-4 text-white">
               {aboutContent?.title || defaultTitle}
             </h2>
-            <div className="text-gray-700 mb-6" dangerouslySetInnerHTML={{ 
+            <div className="text-white mb-6" dangerouslySetInnerHTML={{ 
               __html: aboutContent?.description || defaultDescription
             }} />
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-row space-x-4">
               <Link href="/about" className="btn bg-primary hover:bg-opacity-90 text-white font-bold py-2.5 px-6 rounded-lg inline-block">
                 Learn More About Us
               </Link>
