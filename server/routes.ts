@@ -141,7 +141,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/about", async (req, res) => {
     try {
+      console.log("Fetching about content from Contentful...");
       const aboutContent = await getAboutContent();
+      console.log("About content result:", aboutContent);
       res.json(aboutContent);
     } catch (error) {
       console.error("Error fetching about content:", error);

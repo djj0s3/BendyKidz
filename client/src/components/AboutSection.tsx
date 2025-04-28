@@ -4,8 +4,8 @@ import { AboutContent } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AboutSection() {
-  const { data: aboutContent, isLoading } = useQuery<AboutContent>({
-    queryKey: ['/api/about'],
+  const { data: aboutContent, isLoading, isError } = useQuery<AboutContent>({
+    queryKey: ['/api/about']
   });
 
   if (isLoading) {
@@ -33,6 +33,17 @@ export default function AboutSection() {
         </div>
       </section>
     );
+  }
+  
+  // Handle error or no content
+  if (isError) {
+    console.error("Error in about section fetch");
+    return null;
+  }
+  
+  if (!aboutContent) {
+    console.log("No about content available from API");
+    return null;
   }
 
   return (
