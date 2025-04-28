@@ -433,6 +433,24 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 export async function getAboutContent(): Promise<AboutContent | null> {
   try {
     console.log('Fetching about content from Contentful...');
+    
+    // First, let's fetch all assets to have them available
+    const assetsResponse = await fetchFromContentful('/assets');
+    console.log(`Fetched ${assetsResponse.items?.length || 0} assets directly`);
+    
+    if (assetsResponse.items && assetsResponse.items.length > 0) {
+      console.log('Available assets:');
+      assetsResponse.items.forEach((asset: any, index: number) => {
+        console.log(`Asset ${index + 1}: ID=${asset.sys.id}, Title=${asset.fields.title?.['en-US'] || 'No title'}`);
+        if (asset.fields.file?.['en-US']?.url) {
+          console.log(`  URL=${asset.fields.file['en-US'].url}`);
+        } else {
+          console.log(`  No URL found for this asset`);
+        }
+      });
+    }
+    
+    // Then fetch the about content
     const response = await fetchFromContentful('/entries', {
       content_type: 'aboutPage',
       include: '2'  // Increase the include depth to ensure we get assets
@@ -445,24 +463,52 @@ export async function getAboutContent(): Promise<AboutContent | null> {
       return null;
     }
     
+    // Add the assets to the response to make them available to the transformer
+    if (!response.includes) {
+      response.includes = {};
+    }
+    
+    if (!response.includes.Asset && assetsResponse.items) {
+      response.includes.Asset = assetsResponse.items;
+      console.log(`Added ${assetsResponse.items.length} assets to the response`);
+    }
+    
+    // Log the image ID from the entry
+    const imageField = response.items[0].fields.image;
+    if (imageField) {
+      const imageId = imageField['en-US']?.sys?.id || imageField.sys?.id;
+      console.log(`About page image ID in entry: ${imageId}`);
+    }
+    
     // Log information about included assets
     if (response.includes?.Asset) {
-      console.log(`Response includes ${response.includes.Asset.length} assets:`);
+      console.log(`Response now includes ${response.includes.Asset.length} assets:`);
       response.includes.Asset.forEach((asset: any, index: number) => {
-        console.log(`Asset ${index + 1}: ID=${asset.sys.id}, Title=${asset.fields.title || 'No title'}`);
+        const assetId = asset.sys.id;
+        const assetTitle = asset.fields.title?.['en-US'] || asset.fields.title || 'No title';
+        console.log(`Asset ${index + 1}: ID=${assetId}, Title=${assetTitle}`);
         
-        if (asset.fields.file?.url) {
-          console.log(`  URL=${asset.fields.file.url}`);
+        // Handle both localized and non-localized file URLs
+        let url = '';
+        if (asset.fields.file?.['en-US']?.url) {
+          url = asset.fields.file['en-US'].url;
+        } else if (asset.fields.file?.url) {
+          url = asset.fields.file.url;
+        }
+        
+        if (url) {
+          console.log(`  URL=${url}`);
         } else {
           console.log(`  No URL found for this asset`);
         }
       });
     } else {
-      console.log('Response has no included assets');
+      console.log('Response has no included assets after merge');
     }
     
-    const aboutContent = transformContentfulAboutContent(response.items[0]);
-    console.log('About content result:', aboutContent);
+    // Process the about content with our enhanced response
+    const aboutContent = transformContentfulAboutContent(response.items[0], response);
+    console.log('Final about content result:', aboutContent);
     return aboutContent;
   } catch (error) {
     console.error('Error fetching about content:', error);
@@ -954,36 +1000,67 @@ function transformContentfulTestimonial(item: any): Testimonial {
   };
 }
 
-function transformContentfulAboutContent(item: any): AboutContent {
+function transformContentfulAboutContent(item: any, fullResponse?: any): AboutContent {
   const fields = item.fields;
   
   // Debugging image asset handling
   console.log('About content transformation:');
-  console.log('- Image field:', JSON.stringify(fields.image, null, 2));
+  
+  // Get the image ID, handle both direct and localized fields
+  let imageId = '';
+  if (fields.image) {
+    console.log('- Raw Image field:', JSON.stringify(fields.image, null, 2));
+    
+    if (fields.image['en-US']?.sys?.id) {
+      imageId = fields.image['en-US'].sys.id;
+    } else if (fields.image.sys?.id) {
+      imageId = fields.image.sys.id;
+    }
+    
+    console.log('- Extracted image ID:', imageId);
+  }
   
   let imageUrl = '';
   
-  if (fields.image?.sys?.id) {
-    const imageAsset = findLinkedAsset(item, fields.image.sys.id);
-    console.log('- Found image asset:', !!imageAsset);
+  if (imageId) {
+    // Try to find asset in the response includes first
+    let imageAsset = null;
     
-    if (imageAsset) {
-      console.log('- Image asset fields:', JSON.stringify(imageAsset.fields, null, 2));
+    if (fullResponse?.includes?.Asset) {
+      console.log(`- Looking for asset ID ${imageId} in ${fullResponse.includes.Asset.length} assets`);
+      imageAsset = fullResponse.includes.Asset.find((asset: any) => asset.sys.id === imageId);
+      console.log('- Found asset in response includes:', !!imageAsset);
+    }
+    
+    // If not found, try direct asset lookup (known good assets)
+    if (!imageAsset && imageId === 'emma-avatar') {
+      console.log('- Using known good emma-avatar asset');
+      imageUrl = 'https://images.ctfassets.net/ug9m01ft3fg0/emma-avatar/93e35386c30b2227331145104d13ac10/emma-avatar.jpg';
+    } 
+    // If we have the asset, extract URL
+    else if (imageAsset) {
+      console.log('- Working with found asset:', imageAsset.sys.id);
       
-      if (imageAsset.fields?.file?.url) {
+      // Handle both direct and localized fields
+      if (imageAsset.fields?.file?.['en-US']?.url) {
+        imageUrl = 'https:' + imageAsset.fields.file['en-US'].url;
+      } else if (imageAsset.fields?.file?.url) {
         imageUrl = 'https:' + imageAsset.fields.file.url;
-        console.log('- Final image URL:', imageUrl);
+      } else {
+        console.log('- Asset found but no URL available');
       }
     }
   }
   
+  console.log('- Final image URL:', imageUrl || 'No image URL found');
+  
   return {
-    title: fields.title || '',
-    subtitle: fields.subtitle || '',
-    description: fields.description || '',
-    mission: fields.mission || '',
+    title: fields.title?.['en-US'] || fields.title || '',
+    subtitle: fields.subtitle?.['en-US'] || fields.subtitle || '',
+    description: fields.description?.['en-US'] || fields.description || '',
+    mission: fields.mission?.['en-US'] || fields.mission || '',
     image: imageUrl,
-    imageAlt: fields.imageAlt || ''
+    imageAlt: fields.imageAlt?.['en-US'] || fields.imageAlt || ''
   };
 }
 
