@@ -519,12 +519,25 @@ export async function getAboutContent(): Promise<AboutContent | null> {
 // Get team members
 export async function getTeamMembers(): Promise<TeamMember[]> {
   try {
+    console.log('Fetching team members from Contentful...');
     const response = await fetchFromContentful('/entries', {
       content_type: 'teamMember',
-      order: 'fields.order'
+      order: 'fields.order',
+      include: '2'
     });
     
-    return response.items.map(transformContentfulTeamMember);
+    console.log(`Found ${response.items?.length || 0} team members`);
+    
+    // Get all assets for avatar images
+    if (response.includes?.Asset) {
+      console.log(`Response includes ${response.includes.Asset.length} assets`);
+    }
+    
+    if (response.items?.length > 0) {
+      console.log('Team members found:', response.items.map(item => item.fields.name?.['en-US'] || 'Unnamed'));
+    }
+    
+    return response.items.map(item => transformContentfulTeamMember(item, response));
   } catch (error) {
     console.error('Error fetching team members:', error);
     return [];
@@ -1064,17 +1077,57 @@ function transformContentfulAboutContent(item: any, fullResponse?: any): AboutCo
   };
 }
 
-function transformContentfulTeamMember(item: any): TeamMember {
+function transformContentfulTeamMember(item: any, response?: any): TeamMember {
   const fields = item.fields;
+  
+  // Get localized or direct fields
+  const name = fields.name?.['en-US'] || fields.name || '';
+  const role = fields.role?.['en-US'] || fields.role || '';
+  const bio = fields.bio?.['en-US'] || fields.bio || '';
+  
+  // Extract avatar ID
+  let avatarId = '';
+  if (fields.avatar?.['en-US']?.sys?.id) {
+    avatarId = fields.avatar['en-US'].sys.id;
+  } else if (fields.avatar?.sys?.id) {
+    avatarId = fields.avatar.sys.id;
+  }
+  
+  let avatarUrl = '';
+  
+  if (avatarId) {
+    console.log(`Team member ${name} has avatar ID: ${avatarId}`);
+    
+    // Try to find the asset in the response includes
+    let avatarAsset = null;
+    if (response?.includes?.Asset) {
+      avatarAsset = response.includes.Asset.find((asset: any) => asset.sys.id === avatarId);
+    }
+    
+    // If asset is found, extract the URL
+    if (avatarAsset) {
+      console.log(`Found avatar asset for ${name}`);
+      
+      // Handle both localized and direct URL formats
+      if (avatarAsset.fields?.file?.['en-US']?.url) {
+        avatarUrl = 'https:' + avatarAsset.fields.file['en-US'].url;
+      } else if (avatarAsset.fields?.file?.url) {
+        avatarUrl = 'https:' + avatarAsset.fields.file.url;
+      }
+    } else if (avatarId === 'emma-avatar') {
+      // Fallback for known assets
+      avatarUrl = 'https://images.ctfassets.net/ug9m01ft3fg0/emma-avatar/93e35386c30b2227331145104d13ac10/emma-avatar.jpg';
+    }
+  }
+  
+  console.log(`Final avatar URL for ${name}: ${avatarUrl || 'No avatar'}`);
   
   return {
     id: item.sys.id,
-    name: fields.name || '',
-    role: fields.role || '',
-    bio: fields.bio || '',
-    avatar: findLinkedAsset(item, fields.avatar?.sys?.id)?.fields?.file?.url 
-      ? 'https:' + findLinkedAsset(item, fields.avatar.sys.id).fields.file.url 
-      : ''
+    name,
+    role,
+    bio,
+    avatar: avatarUrl
   };
 }
 

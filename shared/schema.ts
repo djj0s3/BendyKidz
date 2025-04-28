@@ -119,6 +119,15 @@ export interface TeamMember {
   avatar: string;
 }
 
+export interface CoreValue {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  iconColor: string;
+  displayOrder: number;
+}
+
 export interface HeroSection {
   title: string;
   subtitle: string;
