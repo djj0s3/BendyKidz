@@ -432,16 +432,38 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 // Get about page content
 export async function getAboutContent(): Promise<AboutContent | null> {
   try {
+    console.log('Fetching about content from Contentful...');
     const response = await fetchFromContentful('/entries', {
       content_type: 'aboutPage',
-      include: '1'
+      include: '2'  // Increase the include depth to ensure we get assets
     });
     
-    if (response.items.length === 0) {
+    console.log(`About content response has ${response.items?.length || 0} items`);
+    
+    if (!response.items || response.items.length === 0) {
+      console.log('No about content items found in Contentful');
       return null;
     }
     
-    return transformContentfulAboutContent(response.items[0]);
+    // Log information about included assets
+    if (response.includes?.Asset) {
+      console.log(`Response includes ${response.includes.Asset.length} assets:`);
+      response.includes.Asset.forEach((asset: any, index: number) => {
+        console.log(`Asset ${index + 1}: ID=${asset.sys.id}, Title=${asset.fields.title || 'No title'}`);
+        
+        if (asset.fields.file?.url) {
+          console.log(`  URL=${asset.fields.file.url}`);
+        } else {
+          console.log(`  No URL found for this asset`);
+        }
+      });
+    } else {
+      console.log('Response has no included assets');
+    }
+    
+    const aboutContent = transformContentfulAboutContent(response.items[0]);
+    console.log('About content result:', aboutContent);
+    return aboutContent;
   } catch (error) {
     console.error('Error fetching about content:', error);
     return null;
@@ -935,14 +957,32 @@ function transformContentfulTestimonial(item: any): Testimonial {
 function transformContentfulAboutContent(item: any): AboutContent {
   const fields = item.fields;
   
+  // Debugging image asset handling
+  console.log('About content transformation:');
+  console.log('- Image field:', JSON.stringify(fields.image, null, 2));
+  
+  let imageUrl = '';
+  
+  if (fields.image?.sys?.id) {
+    const imageAsset = findLinkedAsset(item, fields.image.sys.id);
+    console.log('- Found image asset:', !!imageAsset);
+    
+    if (imageAsset) {
+      console.log('- Image asset fields:', JSON.stringify(imageAsset.fields, null, 2));
+      
+      if (imageAsset.fields?.file?.url) {
+        imageUrl = 'https:' + imageAsset.fields.file.url;
+        console.log('- Final image URL:', imageUrl);
+      }
+    }
+  }
+  
   return {
     title: fields.title || '',
     subtitle: fields.subtitle || '',
     description: fields.description || '',
     mission: fields.mission || '',
-    image: findLinkedAsset(item, fields.image?.sys?.id)?.fields?.file?.url 
-      ? 'https:' + findLinkedAsset(item, fields.image.sys.id).fields.file.url 
-      : '',
+    image: imageUrl,
     imageAlt: fields.imageAlt || ''
   };
 }
