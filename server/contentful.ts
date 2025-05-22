@@ -1010,8 +1010,15 @@ function transformContentfulArticle(item: any, assetResponse?: any, authorsRespo
   }
   
   // Get category information
-  const categoryEntryId = fields.category?.sys?.id;
+  const categoryEntryId = fields.category?.['en-US']?.sys?.id || fields.category?.sys?.id;
+  console.log(`Looking for category with ID: ${categoryEntryId}`);
   const categoryEntry = findLinkedEntry(item, categoryEntryId);
+  
+  if (categoryEntry) {
+    console.log(`Found category entry:`, JSON.stringify(categoryEntry.fields, null, 2));
+  } else {
+    console.log(`Category entry not found in includes`);
+  }
   
   // Try to find the asset in the response includes first
   let featuredImageAsset = findLinkedAsset(item, featuredImageAssetId);
