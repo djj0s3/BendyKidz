@@ -7,6 +7,14 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({ article }: ArticleCardProps) {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = 'https://via.placeholder.com/400x200/7C3AED/FFFFFF?text=Article+Image';
+  };
+
+  const handleAvatarError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = 'https://via.placeholder.com/24x24/7C3AED/FFFFFF?text=A';
+  };
+
   return (
     <div className="bg-neutral-light rounded-lg overflow-hidden shadow-md transition-transform duration-300 hover:shadow-lg hover:-translate-y-1">
       <Link href={`/article/${article.slug}`}>
@@ -14,6 +22,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           src={article.featuredImage} 
           alt={article.title} 
           className="w-full h-48 object-cover"
+          onError={handleImageError}
         />
         <div className="p-6">
           <div className="flex items-center mb-3">
@@ -39,6 +48,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
                 src={article.author.avatar} 
                 alt={article.author.name} 
                 className="w-6 h-6 rounded-full mr-2"
+                onError={handleAvatarError}
               />
               <span>{article.author.name}</span>
             </div>
