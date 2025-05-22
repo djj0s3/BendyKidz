@@ -222,6 +222,11 @@ export interface SimpleFooter {
   policies: PolicyLink[];
 }
 
+export interface CategorySection {
+  title: string;
+  description: string;
+}
+
 export interface ContactPageInfo {
   title: string;
   subtitle: string;
