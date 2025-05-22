@@ -78,6 +78,12 @@ export async function getArticles(): Promise<Article[]> {
     });
     console.log(`Directly found ${authorsResponse.items?.length || 0} authors for articles`);
     
+    // Get categories
+    const categoriesResponse = await fetchFromContentful('/entries', {
+      content_type: 'category'
+    });
+    console.log(`Directly found ${categoriesResponse.items?.length || 0} categories for articles`);
+    
     const response = await fetchFromContentful('/entries', {
       content_type: 'article',
       include: '10',
@@ -110,6 +116,20 @@ export async function getArticles(): Promise<Article[]> {
       }
     }
     
+    // Add categories to response includes if they're not already there
+    if (categoriesResponse?.items) {
+      console.log('Adding categories to the response');
+      response.includes = response.includes || {};
+      response.includes.Entry = response.includes.Entry || [];
+      
+      // Add category entries that aren't already included
+      for (const category of categoriesResponse.items) {
+        if (!response.includes.Entry.some((existingEntry: any) => existingEntry.sys.id === category.sys.id)) {
+          response.includes.Entry.push(category);
+        }
+      }
+    }
+
     // Transform articles with proper asset handling
     const articles = response.items.map((item: any) => transformContentfulArticle(item, assetResponse, authorsResponse));
     
