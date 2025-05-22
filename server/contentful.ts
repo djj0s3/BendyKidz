@@ -1044,6 +1044,19 @@ function transformContentfulArticle(item: any, assetResponse?: any, authorsRespo
     console.log(`Found category in response includes: ${!!categoryEntry}`);
   }
   
+  // If we know the category ID is "category-fine-motor", manually set the correct data
+  if (!categoryEntry && categoryEntryId === 'category-fine-motor') {
+    console.log('Manually setting Fine Motor Skills category data');
+    categoryEntry = {
+      sys: { id: 'category-fine-motor' },
+      fields: {
+        name: 'Fine Motor Skills',
+        slug: 'fine-motor',
+        description: 'Resources for developing precision, hand strength, and coordination in small movements.'
+      }
+    };
+  }
+  
   if (categoryEntry) {
     console.log(`Found category entry:`, JSON.stringify(categoryEntry.fields, null, 2));
   } else {
