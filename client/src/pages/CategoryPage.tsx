@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Category, Article } from "@shared/schema";
 import ArticleCard from "@/components/ArticleCard";
 import { ArticleCardSkeleton } from "@/components/ui/loading";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 
 export default function CategoryPage() {
