@@ -60,14 +60,61 @@ export async function getArticles(): Promise<Article[]> {
       return [];
     }
     
+    // Get all assets first
+    const assetResponse = await fetchFromContentful('/assets');
+    console.log(`Directly found ${assetResponse.items?.length || 0} assets`);
+    
+    if (assetResponse.items && assetResponse.items.length > 0) {
+      assetResponse.items.forEach((asset: any, index: number) => {
+        const fileUrl = asset.fields?.file?.['en-US']?.url || asset.fields?.file?.url;
+        console.log(`Direct asset ${index + 1}: ID=${asset.sys.id}, URL=${fileUrl}`);
+      });
+    }
+    
+    // Get authors with their avatars
+    const authorsResponse = await fetchFromContentful('/entries', {
+      content_type: 'author',
+      include: '2'
+    });
+    console.log(`Directly found ${authorsResponse.items?.length || 0} authors for articles`);
+    
     const response = await fetchFromContentful('/entries', {
       content_type: 'article',
-      include: '2', // Include 2 levels of linked entries (for authors and categories)
-      order: '-sys.createdAt' // Sort by newest first
+      include: '10',
+      order: '-sys.createdAt'
     });
     
-    // Transform Contentful response to our Article model
-    return response.items.map(transformContentfulArticle);
+    // Add assets to response if not included
+    if (!response.includes?.Asset && assetResponse?.items) {
+      console.log('Found assets in response:', assetResponse.items.length);
+      assetResponse.items.forEach((asset: any, index: number) => {
+        const fileUrl = asset.fields?.file?.['en-US']?.url || asset.fields?.file?.url;
+        console.log(`Asset ${index + 1}: ID=${asset.sys.id}, URL=${fileUrl}`);
+      });
+      
+      response.includes = response.includes || {};
+      response.includes.Asset = assetResponse.items;
+    }
+    
+    // Add authors to response includes if they're not already there
+    if (authorsResponse?.includes?.Asset) {
+      console.log('Adding author avatar assets to the response');
+      response.includes = response.includes || {};
+      response.includes.Asset = response.includes.Asset || [];
+      
+      // Add avatar assets that aren't already included
+      for (const asset of authorsResponse.includes.Asset) {
+        if (!response.includes.Asset.some((existingAsset: any) => existingAsset.sys.id === asset.sys.id)) {
+          response.includes.Asset.push(asset);
+        }
+      }
+    }
+    
+    // Transform articles with proper asset handling
+    const articles = response.items.map((item: any) => transformContentfulArticle(item, assetResponse, authorsResponse));
+    
+    console.log('FINAL ARTICLES:', JSON.stringify(articles, null, 2));
+    return articles;
   } catch (error) {
     console.error('Error fetching articles:', error);
     return [];
