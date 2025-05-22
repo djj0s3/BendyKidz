@@ -1,4 +1,4 @@
-import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection, Header, Footer, ContactPageInfo, CoreValue } from '@shared/schema';
+import { Article, Category, Testimonial, TestimonialsSection, AboutContent, TeamMember, SiteStats, RelatedArticle, HeroSection, FeaturedCollection, Header, Footer, ContactPageInfo, CoreValue, CategorySection } from '@shared/schema';
 
 const CONTENTFUL_SPACE_ID = process.env.CONTENTFUL_SPACE_ID || '';
 const CONTENTFUL_ACCESS_TOKEN = process.env.CONTENTFUL_ACCESS_TOKEN || '';
@@ -1597,5 +1597,48 @@ function transformContentfulContactInfo(item: any): ContactPageInfo {
     socialPinterest: fields.socialPinterest?.['en-US'] || fields.socialPinterest || 'https://pinterest.com/bendykidz',
     mapTitle: fields.mapTitle?.['en-US'] || fields.mapTitle || 'Find Us',
     mapEmbedUrl: fields.mapEmbedUrl?.['en-US'] || fields.mapEmbedUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2suk!4v1619471123295!5m2!1sen!2suk'
+  };
+}
+
+// Get category section content
+export async function getCategorySection(): Promise<CategorySection | null> {
+  try {
+    console.log('Fetching category section content from Contentful...');
+    
+    const response = await fetchFromContentful('/entries', {
+      content_type: 'categorySection',
+      limit: '1',
+      include: '0'
+    });
+    
+    if (response.items && response.items.length > 0) {
+      console.log('Found category section in Contentful, transforming data');
+      return transformContentfulCategorySection(response.items[0]);
+    }
+    
+    // Return fallback data if nothing was found
+    console.log('No category section found in Contentful, using fallback data');
+    return {
+      title: 'Browse by Category',
+      description: 'Find specific resources tailored to your child\'s needs'
+    };
+  } catch (error) {
+    console.error('Error fetching category section content:', error);
+    
+    // Return fallback data on error
+    return {
+      title: 'Browse by Category',
+      description: 'Find specific resources tailored to your child\'s needs'
+    };
+  }
+}
+
+// Transform Contentful category section to our model
+function transformContentfulCategorySection(item: any): CategorySection {
+  const fields = item.fields;
+  
+  return {
+    title: fields.title?.['en-US'] || fields.title || 'Browse by Category',
+    description: fields.description?.['en-US'] || fields.description || 'Find specific resources tailored to your child\'s needs'
   };
 }

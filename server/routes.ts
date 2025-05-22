@@ -23,7 +23,8 @@ import {
   getFeaturedCollections,
   getHeader,
   getFooter,
-  getContactPageInfo
+  getContactPageInfo,
+  getCategorySection
 } from "./contentful";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -229,6 +230,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching contact page content:", error);
       res.status(500).json({ message: "Failed to fetch contact page content" });
+    }
+  });
+
+  app.get("/api/category-section", async (req, res) => {
+    try {
+      const categorySection = await getCategorySection();
+      res.json(categorySection);
+    } catch (error) {
+      console.error("Error fetching category section content:", error);
+      res.status(500).json({ message: "Failed to fetch category section content" });
     }
   });
 
