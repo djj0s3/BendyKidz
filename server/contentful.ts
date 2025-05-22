@@ -131,7 +131,11 @@ export async function getArticles(): Promise<Article[]> {
     }
 
     // Transform articles with proper asset handling
-    const articles = response.items.map((item: any) => transformContentfulArticle(item, assetResponse, authorsResponse));
+    const articles = response.items.map((item: any) => {
+      // Pass the full response object so transformation can access includes
+      const itemWithResponse = { ...item, includes: response.includes };
+      return transformContentfulArticle(itemWithResponse, assetResponse, authorsResponse);
+    });
     
     console.log('FINAL ARTICLES:', JSON.stringify(articles, null, 2));
     return articles;
@@ -1032,12 +1036,18 @@ function transformContentfulArticle(item: any, assetResponse?: any, authorsRespo
   // Get category information
   const categoryEntryId = fields.category?.['en-US']?.sys?.id || fields.category?.sys?.id;
   console.log(`Looking for category with ID: ${categoryEntryId}`);
-  const categoryEntry = findLinkedEntry(item, categoryEntryId);
+  let categoryEntry = findLinkedEntry(item, categoryEntryId);
+  
+  // If not found in includes, try to find it in the passed response data
+  if (!categoryEntry && item.includes?.Entry) {
+    categoryEntry = item.includes.Entry.find((entry: any) => entry.sys.id === categoryEntryId);
+    console.log(`Found category in response includes: ${!!categoryEntry}`);
+  }
   
   if (categoryEntry) {
     console.log(`Found category entry:`, JSON.stringify(categoryEntry.fields, null, 2));
   } else {
-    console.log(`Category entry not found in includes`);
+    console.log(`Category entry not found in includes or response data`);
   }
   
   // Try to find the asset in the response includes first
