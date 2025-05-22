@@ -36,6 +36,9 @@ export default function ArticlesPage() {
       article.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
       article.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
     
+    // Debug logging
+    console.log(`Filtering article "${article.title}": category.slug="${article.category.slug}", selectedCategory="${selectedCategory}", matchesCategory=${matchesCategory}`);
+    
     return matchesCategory && matchesSearch;
   });
 
